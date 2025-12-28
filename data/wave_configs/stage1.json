@@ -1655,6 +1655,2978 @@
 		  "spawn_chance": 0.25
 		}
 	  ]
+	},
+	  {
+	"wave": 31,
+	"base_config": {
+	  "hp_growth": 6.25,
+	  "damage_growth": 3.35,
+	  "min_alive_enemies": 15,
+	  "max_alive_enemies": 53
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.538,
+		"total_count": 62,
+		"enemy_types": {
+		  "creeper": 0.75,
+		  "creeper_fast": 0.25
+		}
+	  },
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.518,
+		"total_count": 103,
+		"enemy_types": {
+		  "creeper": 0.75,
+		  "creeper_fast": 0.25
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 1,
+	  "enemy_id": "stapler_red"
 	}
+  },
+  {
+	"wave": 32,
+	"base_config": {
+	  "hp_growth": 6.7,
+	  "damage_growth": 3.8,
+	  "min_alive_enemies": 16,
+	  "max_alive_enemies": 55
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.536,
+		"total_count": 64,
+		"enemy_types": {
+		  "creeper": 0.75,
+		  "creeper_fast": 0.25
+		}
+	  },
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.516,
+		"total_count": 106,
+		"enemy_types": {
+		  "creeper": 0.75,
+		  "creeper_fast": 0.25
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 1,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 33,
+	"base_config": {
+	  "hp_growth": 7.15,
+	  "damage_growth": 4.25,
+	  "min_alive_enemies": 16,
+	  "max_alive_enemies": 57
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.534,
+		"total_count": 66,
+		"enemy_types": {
+		  "creeper": 0.75,
+		  "creeper_fast": 0.25
+		}
+	  },
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.514,
+		"total_count": 109,
+		"enemy_types": {
+		  "creeper": 0.75,
+		  "creeper_fast": 0.25
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 1,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 34,
+	"base_config": {
+	  "hp_growth": 7.6,
+	  "damage_growth": 4.7,
+	  "min_alive_enemies": 17,
+	  "max_alive_enemies": 59
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.532,
+		"total_count": 68,
+		"enemy_types": {
+		  "creeper": 0.75,
+		  "creeper_fast": 0.25
+		}
+	  },
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.512,
+		"total_count": 112,
+		"enemy_types": {
+		  "creeper": 0.75,
+		  "creeper_fast": 0.25
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 1,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 35,
+	"base_config": {
+	  "hp_growth": 8.05,
+	  "damage_growth": 5.15,
+	  "min_alive_enemies": 17,
+	  "max_alive_enemies": 61
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.53,
+		"total_count": 70,
+		"enemy_types": {
+		  "creeper": 0.6,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.15
+		}
+	  },
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.51,
+		"total_count": 115,
+		"enemy_types": {
+		  "creeper": 0.6,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.15
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 1,
+	  "enemy_id": "monitor"
+	}
+  },
+  {
+	"wave": 36,
+	"base_config": {
+	  "hp_growth": 8.5,
+	  "damage_growth": 5.6,
+	  "min_alive_enemies": 18,
+	  "max_alive_enemies": 63
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.528,
+		"total_count": 72,
+		"enemy_types": {
+		  "creeper": 0.6,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.15
+		}
+	  },
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.508,
+		"total_count": 118,
+		"enemy_types": {
+		  "creeper": 0.6,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.15
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 1,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 37,
+	"base_config": {
+	  "hp_growth": 8.95,
+	  "damage_growth": 6.05,
+	  "min_alive_enemies": 18,
+	  "max_alive_enemies": 65
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.526,
+		"total_count": 74,
+		"enemy_types": {
+		  "creeper": 0.61,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14
+		}
+	  },
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.506,
+		"total_count": 121,
+		"enemy_types": {
+		  "creeper": 0.61,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 1,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 38,
+	"base_config": {
+	  "hp_growth": 9.4,
+	  "damage_growth": 6.5,
+	  "min_alive_enemies": 19,
+	  "max_alive_enemies": 67
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.524,
+		"total_count": 76,
+		"enemy_types": {
+		  "creeper": 0.61,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14
+		}
+	  },
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.504,
+		"total_count": 124,
+		"enemy_types": {
+		  "creeper": 0.61,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 1,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 39,
+	"base_config": {
+	  "hp_growth": 9.85,
+	  "damage_growth": 6.95,
+	  "min_alive_enemies": 19,
+	  "max_alive_enemies": 69
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.522,
+		"total_count": 78,
+		"enemy_types": {
+		  "creeper": 0.61,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14
+		}
+	  },
+	  {
+		"spawn_per_time": 10,
+		"spawn_interval": 0.502,
+		"total_count": 127,
+		"enemy_types": {
+		  "creeper": 0.61,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 1,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 40,
+	"base_config": {
+	  "hp_growth": 10.3,
+	  "damage_growth": 7.4,
+	  "min_alive_enemies": 20,
+	  "max_alive_enemies": 71
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.52,
+		"total_count": 80,
+		"enemy_types": {
+		  "creeper": 0.42,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.19
+		}
+	  },
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.5,
+		"total_count": 130,
+		"enemy_types": {
+		  "creeper": 0.42,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.19
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "monitor"
+	}
+  },
+  {
+	"wave": 41,
+	"base_config": {
+	  "hp_growth": 10.75,
+	  "damage_growth": 7.85,
+	  "min_alive_enemies": 20,
+	  "max_alive_enemies": 73
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.518,
+		"total_count": 82,
+		"enemy_types": {
+		  "creeper": 0.43,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18
+		}
+	  },
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.498,
+		"total_count": 133,
+		"enemy_types": {
+		  "creeper": 0.43,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 42,
+	"base_config": {
+	  "hp_growth": 11.2,
+	  "damage_growth": 8.3,
+	  "min_alive_enemies": 21,
+	  "max_alive_enemies": 75
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.516,
+		"total_count": 84,
+		"enemy_types": {
+		  "creeper": 0.43,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18
+		}
+	  },
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.496,
+		"total_count": 136,
+		"enemy_types": {
+		  "creeper": 0.43,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 43,
+	"base_config": {
+	  "hp_growth": 11.65,
+	  "damage_growth": 8.75,
+	  "min_alive_enemies": 21,
+	  "max_alive_enemies": 77
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.514,
+		"total_count": 86,
+		"enemy_types": {
+		  "creeper": 0.43,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18
+		}
+	  },
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.494,
+		"total_count": 139,
+		"enemy_types": {
+		  "creeper": 0.43,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 44,
+	"base_config": {
+	  "hp_growth": 12.1,
+	  "damage_growth": 9.2,
+	  "min_alive_enemies": 22,
+	  "max_alive_enemies": 79
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.512,
+		"total_count": 88,
+		"enemy_types": {
+		  "creeper": 0.43,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18
+		}
+	  },
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.492,
+		"total_count": 142,
+		"enemy_types": {
+		  "creeper": 0.43,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 45,
+	"base_config": {
+	  "hp_growth": 12.55,
+	  "damage_growth": 9.65,
+	  "min_alive_enemies": 22,
+	  "max_alive_enemies": 81
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.51,
+		"total_count": 90,
+		"enemy_types": {
+		  "creeper": 0.24,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09
+		}
+	  },
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.49,
+		"total_count": 145,
+		"enemy_types": {
+		  "creeper": 0.24,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "monitor"
+	}
+  },
+  {
+	"wave": 46,
+	"base_config": {
+	  "hp_growth": 13,
+	  "damage_growth": 10.1,
+	  "min_alive_enemies": 23,
+	  "max_alive_enemies": 83
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.508,
+		"total_count": 92,
+		"enemy_types": {
+		  "creeper": 0.24,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09
+		}
+	  },
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.488,
+		"total_count": 148,
+		"enemy_types": {
+		  "creeper": 0.24,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 47,
+	"base_config": {
+	  "hp_growth": 13.45,
+	  "damage_growth": 10.55,
+	  "min_alive_enemies": 23,
+	  "max_alive_enemies": 85
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.506,
+		"total_count": 94,
+		"enemy_types": {
+		  "creeper": 0.24,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09
+		}
+	  },
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.486,
+		"total_count": 151,
+		"enemy_types": {
+		  "creeper": 0.24,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.18,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 48,
+	"base_config": {
+	  "hp_growth": 13.9,
+	  "damage_growth": 11,
+	  "min_alive_enemies": 24,
+	  "max_alive_enemies": 87
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.504,
+		"total_count": 96,
+		"enemy_types": {
+		  "creeper": 0.25,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.17,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09
+		}
+	  },
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.484,
+		"total_count": 154,
+		"enemy_types": {
+		  "creeper": 0.25,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.17,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 49,
+	"base_config": {
+	  "hp_growth": 14.35,
+	  "damage_growth": 11.45,
+	  "min_alive_enemies": 24,
+	  "max_alive_enemies": 89
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.502,
+		"total_count": 98,
+		"enemy_types": {
+		  "creeper": 0.25,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.17,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09
+		}
+	  },
+	  {
+		"spawn_per_time": 11,
+		"spawn_interval": 0.482,
+		"total_count": 157,
+		"enemy_types": {
+		  "creeper": 0.25,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.17,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 50,
+	"base_config": {
+	  "hp_growth": 14.8,
+	  "damage_growth": 11.9,
+	  "min_alive_enemies": 25,
+	  "max_alive_enemies": 91
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.5,
+		"total_count": 100,
+		"enemy_types": {
+		  "creeper": 0.17,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.17,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09,
+		  "powerbank": 0.08
+		}
+	  },
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.48,
+		"total_count": 160,
+		"enemy_types": {
+		  "creeper": 0.17,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.17,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09,
+		  "powerbank": 0.08
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "monitor"
+	}
+  },
+  {
+	"wave": 51,
+	"base_config": {
+	  "hp_growth": 15.25,
+	  "damage_growth": 12.35,
+	  "min_alive_enemies": 25,
+	  "max_alive_enemies": 93
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.498,
+		"total_count": 102,
+		"enemy_types": {
+		  "creeper": 0.17,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.17,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09,
+		  "powerbank": 0.08
+		}
+	  },
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.478,
+		"total_count": 163,
+		"enemy_types": {
+		  "creeper": 0.17,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.14,
+		  "jug_green": 0.17,
+		  "stapler": 0.1,
+		  "stapler_melee": 0.09,
+		  "powerbank": 0.08
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 52,
+	"base_config": {
+	  "hp_growth": 15.7,
+	  "damage_growth": 12.8,
+	  "min_alive_enemies": 26,
+	  "max_alive_enemies": 95
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.496,
+		"total_count": 104,
+		"enemy_types": {
+		  "creeper": 0.2,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.17,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  },
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.476,
+		"total_count": 166,
+		"enemy_types": {
+		  "creeper": 0.2,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.17,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 53,
+	"base_config": {
+	  "hp_growth": 16.15,
+	  "damage_growth": 13.25,
+	  "min_alive_enemies": 26,
+	  "max_alive_enemies": 97
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.494,
+		"total_count": 106,
+		"enemy_types": {
+		  "creeper": 0.2,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.17,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  },
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.474,
+		"total_count": 169,
+		"enemy_types": {
+		  "creeper": 0.2,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.17,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 54,
+	"base_config": {
+	  "hp_growth": 16.6,
+	  "damage_growth": 13.7,
+	  "min_alive_enemies": 27,
+	  "max_alive_enemies": 99
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.492,
+		"total_count": 108,
+		"enemy_types": {
+		  "creeper": 0.2,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.17,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  },
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.472,
+		"total_count": 172,
+		"enemy_types": {
+		  "creeper": 0.2,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.17,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 55,
+	"base_config": {
+	  "hp_growth": 17.05,
+	  "damage_growth": 14.15,
+	  "min_alive_enemies": 27,
+	  "max_alive_enemies": 101
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.49,
+		"total_count": 110,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  },
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.47,
+		"total_count": 175,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "monitor"
+	}
+  },
+  {
+	"wave": 56,
+	"base_config": {
+	  "hp_growth": 17.5,
+	  "damage_growth": 14.6,
+	  "min_alive_enemies": 28,
+	  "max_alive_enemies": 103
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.488,
+		"total_count": 112,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  },
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.468,
+		"total_count": 178,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 57,
+	"base_config": {
+	  "hp_growth": 17.95,
+	  "damage_growth": 15.05,
+	  "min_alive_enemies": 28,
+	  "max_alive_enemies": 105
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.486,
+		"total_count": 114,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  },
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.466,
+		"total_count": 181,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 58,
+	"base_config": {
+	  "hp_growth": 18.4,
+	  "damage_growth": 15.5,
+	  "min_alive_enemies": 29,
+	  "max_alive_enemies": 107
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.484,
+		"total_count": 116,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  },
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.464,
+		"total_count": 184,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 59,
+	"base_config": {
+	  "hp_growth": 18.85,
+	  "damage_growth": 15.95,
+	  "min_alive_enemies": 29,
+	  "max_alive_enemies": 109
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.482,
+		"total_count": 118,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  },
+	  {
+		"spawn_per_time": 12,
+		"spawn_interval": 0.462,
+		"total_count": 187,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 60,
+	"base_config": {
+	  "hp_growth": 19.3,
+	  "damage_growth": 16.4,
+	  "min_alive_enemies": 30,
+	  "max_alive_enemies": 111
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.48,
+		"total_count": 120,
+		"enemy_types": {
+		  "creeper": 0.14,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08,
+		  "jug": 0.07
+		}
+	  },
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.46,
+		"total_count": 190,
+		"enemy_types": {
+		  "creeper": 0.14,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08,
+		  "jug": 0.07
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "monitor"
+	}
+  },
+  {
+	"wave": 61,
+	"base_config": {
+	  "hp_growth": 19.75,
+	  "damage_growth": 16.85,
+	  "min_alive_enemies": 30,
+	  "max_alive_enemies": 113
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.478,
+		"total_count": 122,
+		"enemy_types": {
+		  "creeper": 0.14,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08,
+		  "jug": 0.07
+		}
+	  },
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.458,
+		"total_count": 193,
+		"enemy_types": {
+		  "creeper": 0.14,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.16,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08,
+		  "jug": 0.07
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 62,
+	"base_config": {
+	  "hp_growth": 20.2,
+	  "damage_growth": 17.3,
+	  "min_alive_enemies": 31,
+	  "max_alive_enemies": 115
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.476,
+		"total_count": 124,
+		"enemy_types": {
+		  "creeper": 0.15,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.15,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08,
+		  "jug": 0.07
+		}
+	  },
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.456,
+		"total_count": 196,
+		"enemy_types": {
+		  "creeper": 0.15,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.15,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08,
+		  "jug": 0.07
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 63,
+	"base_config": {
+	  "hp_growth": 20.65,
+	  "damage_growth": 17.75,
+	  "min_alive_enemies": 31,
+	  "max_alive_enemies": 117
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.474,
+		"total_count": 126,
+		"enemy_types": {
+		  "creeper": 0.15,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.15,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08,
+		  "jug": 0.07
+		}
+	  },
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.454,
+		"total_count": 199,
+		"enemy_types": {
+		  "creeper": 0.15,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.15,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08,
+		  "jug": 0.07
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 64,
+	"base_config": {
+	  "hp_growth": 21.1,
+	  "damage_growth": 18.2,
+	  "min_alive_enemies": 32,
+	  "max_alive_enemies": 119
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.472,
+		"total_count": 128,
+		"enemy_types": {
+		  "creeper": 0.15,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.15,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08,
+		  "jug": 0.07
+		}
+	  },
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.452,
+		"total_count": 202,
+		"enemy_types": {
+		  "creeper": 0.15,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.15,
+		  "stapler": 0.09,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.08,
+		  "jug": 0.07
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 65,
+	"base_config": {
+	  "hp_growth": 21.55,
+	  "damage_growth": 18.65,
+	  "min_alive_enemies": 32,
+	  "max_alive_enemies": 121
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.47,
+		"total_count": 130,
+		"enemy_types": {
+		  "creeper": 0.17,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.15,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.07,
+		  "jug": 0.07
+		}
+	  },
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.45,
+		"total_count": 205,
+		"enemy_types": {
+		  "creeper": 0.17,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.13,
+		  "jug_green": 0.15,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.08,
+		  "powerbank": 0.07,
+		  "jug": 0.07
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "monitor"
+	}
+  },
+  {
+	"wave": 66,
+	"base_config": {
+	  "hp_growth": 22,
+	  "damage_growth": 19.1,
+	  "min_alive_enemies": 33,
+	  "max_alive_enemies": 123
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.468,
+		"total_count": 132,
+		"enemy_types": {
+		  "creeper": 0.2,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.15,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.448,
+		"total_count": 208,
+		"enemy_types": {
+		  "creeper": 0.2,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.15,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 67,
+	"base_config": {
+	  "hp_growth": 22.45,
+	  "damage_growth": 19.55,
+	  "min_alive_enemies": 33,
+	  "max_alive_enemies": 125
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.466,
+		"total_count": 134,
+		"enemy_types": {
+		  "creeper": 0.2,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.15,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.446,
+		"total_count": 211,
+		"enemy_types": {
+		  "creeper": 0.2,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.15,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 68,
+	"base_config": {
+	  "hp_growth": 22.9,
+	  "damage_growth": 20,
+	  "min_alive_enemies": 34,
+	  "max_alive_enemies": 127
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.464,
+		"total_count": 136,
+		"enemy_types": {
+		  "creeper": 0.2,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.15,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.444,
+		"total_count": 214,
+		"enemy_types": {
+		  "creeper": 0.2,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.15,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 69,
+	"base_config": {
+	  "hp_growth": 23.35,
+	  "damage_growth": 20.45,
+	  "min_alive_enemies": 34,
+	  "max_alive_enemies": 129
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.462,
+		"total_count": 138,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 13,
+		"spawn_interval": 0.442,
+		"total_count": 217,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 2,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 70,
+	"base_config": {
+	  "hp_growth": 23.8,
+	  "damage_growth": 20.9,
+	  "min_alive_enemies": 35,
+	  "max_alive_enemies": 131
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.46,
+		"total_count": 140,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.44,
+		"total_count": 220,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "monitor"
+	}
+  },
+  {
+	"wave": 71,
+	"base_config": {
+	  "hp_growth": 24.25,
+	  "damage_growth": 21.35,
+	  "min_alive_enemies": 35,
+	  "max_alive_enemies": 133
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.458,
+		"total_count": 142,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.438,
+		"total_count": 223,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 72,
+	"base_config": {
+	  "hp_growth": 24.7,
+	  "damage_growth": 21.8,
+	  "min_alive_enemies": 36,
+	  "max_alive_enemies": 135
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.456,
+		"total_count": 144,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.436,
+		"total_count": 226,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 73,
+	"base_config": {
+	  "hp_growth": 25.15,
+	  "damage_growth": 22.25,
+	  "min_alive_enemies": 36,
+	  "max_alive_enemies": 137
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.454,
+		"total_count": 146,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.434,
+		"total_count": 229,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 74,
+	"base_config": {
+	  "hp_growth": 25.6,
+	  "damage_growth": 22.7,
+	  "min_alive_enemies": 37,
+	  "max_alive_enemies": 139
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.452,
+		"total_count": 148,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.432,
+		"total_count": 232,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 75,
+	"base_config": {
+	  "hp_growth": 26.05,
+	  "damage_growth": 23.15,
+	  "min_alive_enemies": 37,
+	  "max_alive_enemies": 141
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.45,
+		"total_count": 150,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.43,
+		"total_count": 235,
+		"enemy_types": {
+		  "creeper": 0.21,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.14,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "monitor"
+	}
+  },
+  {
+	"wave": 76,
+	"base_config": {
+	  "hp_growth": 26.5,
+	  "damage_growth": 23.6,
+	  "min_alive_enemies": 38,
+	  "max_alive_enemies": 143
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.448,
+		"total_count": 152,
+		"enemy_types": {
+		  "creeper": 0.22,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.13,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.428,
+		"total_count": 238,
+		"enemy_types": {
+		  "creeper": 0.22,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.13,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 77,
+	"base_config": {
+	  "hp_growth": 26.95,
+	  "damage_growth": 24.05,
+	  "min_alive_enemies": 38,
+	  "max_alive_enemies": 145
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.446,
+		"total_count": 154,
+		"enemy_types": {
+		  "creeper": 0.22,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.13,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.426,
+		"total_count": 241,
+		"enemy_types": {
+		  "creeper": 0.22,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.13,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 78,
+	"base_config": {
+	  "hp_growth": 27.4,
+	  "damage_growth": 24.5,
+	  "min_alive_enemies": 39,
+	  "max_alive_enemies": 147
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.444,
+		"total_count": 156,
+		"enemy_types": {
+		  "creeper": 0.22,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.13,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.424,
+		"total_count": 244,
+		"enemy_types": {
+		  "creeper": 0.22,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.12,
+		  "jug_green": 0.13,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 79,
+	"base_config": {
+	  "hp_growth": 27.85,
+	  "damage_growth": 24.95,
+	  "min_alive_enemies": 39,
+	  "max_alive_enemies": 149
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.442,
+		"total_count": 158,
+		"enemy_types": {
+		  "creeper": 0.23,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.13,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 14,
+		"spawn_interval": 0.422,
+		"total_count": 247,
+		"enemy_types": {
+		  "creeper": 0.23,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.13,
+		  "stapler": 0.08,
+		  "stapler_melee": 0.07,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 80,
+	"base_config": {
+	  "hp_growth": 28.3,
+	  "damage_growth": 25.4,
+	  "min_alive_enemies": 40,
+	  "max_alive_enemies": 151
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.44,
+		"total_count": 160,
+		"enemy_types": {
+		  "creeper": 0.25,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.13,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.42,
+		"total_count": 250,
+		"enemy_types": {
+		  "creeper": 0.25,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.13,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "monitor"
+	}
+  },
+  {
+	"wave": 81,
+	"base_config": {
+	  "hp_growth": 28.75,
+	  "damage_growth": 25.85,
+	  "min_alive_enemies": 40,
+	  "max_alive_enemies": 153
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.438,
+		"total_count": 162,
+		"enemy_types": {
+		  "creeper": 0.25,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.13,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.418,
+		"total_count": 253,
+		"enemy_types": {
+		  "creeper": 0.25,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.13,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 82,
+	"base_config": {
+	  "hp_growth": 29.2,
+	  "damage_growth": 26.3,
+	  "min_alive_enemies": 41,
+	  "max_alive_enemies": 155
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.436,
+		"total_count": 164,
+		"enemy_types": {
+		  "creeper": 0.25,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.13,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.416,
+		"total_count": 256,
+		"enemy_types": {
+		  "creeper": 0.25,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.13,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 83,
+	"base_config": {
+	  "hp_growth": 29.65,
+	  "damage_growth": 26.75,
+	  "min_alive_enemies": 41,
+	  "max_alive_enemies": 157
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.434,
+		"total_count": 166,
+		"enemy_types": {
+		  "creeper": 0.26,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.414,
+		"total_count": 259,
+		"enemy_types": {
+		  "creeper": 0.26,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 84,
+	"base_config": {
+	  "hp_growth": 30.1,
+	  "damage_growth": 27.2,
+	  "min_alive_enemies": 42,
+	  "max_alive_enemies": 159
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.432,
+		"total_count": 168,
+		"enemy_types": {
+		  "creeper": 0.26,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.412,
+		"total_count": 262,
+		"enemy_types": {
+		  "creeper": 0.26,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 85,
+	"base_config": {
+	  "hp_growth": 30.55,
+	  "damage_growth": 27.65,
+	  "min_alive_enemies": 42,
+	  "max_alive_enemies": 161
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.43,
+		"total_count": 170,
+		"enemy_types": {
+		  "creeper": 0.26,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.41,
+		"total_count": 265,
+		"enemy_types": {
+		  "creeper": 0.26,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "monitor"
+	}
+  },
+  {
+	"wave": 86,
+	"base_config": {
+	  "hp_growth": 31,
+	  "damage_growth": 28.1,
+	  "min_alive_enemies": 43,
+	  "max_alive_enemies": 163
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.428,
+		"total_count": 172,
+		"enemy_types": {
+		  "creeper": 0.26,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.408,
+		"total_count": 268,
+		"enemy_types": {
+		  "creeper": 0.26,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 87,
+	"base_config": {
+	  "hp_growth": 31.45,
+	  "damage_growth": 28.55,
+	  "min_alive_enemies": 43,
+	  "max_alive_enemies": 165
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.426,
+		"total_count": 174,
+		"enemy_types": {
+		  "creeper": 0.26,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.406,
+		"total_count": 271,
+		"enemy_types": {
+		  "creeper": 0.26,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 88,
+	"base_config": {
+	  "hp_growth": 31.9,
+	  "damage_growth": 29,
+	  "min_alive_enemies": 44,
+	  "max_alive_enemies": 167
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.424,
+		"total_count": 176,
+		"enemy_types": {
+		  "creeper": 0.26,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  },
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.404,
+		"total_count": 274,
+		"enemy_types": {
+		  "creeper": 0.26,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.07,
+		  "jug": 0.06
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 89,
+	"base_config": {
+	  "hp_growth": 32.35,
+	  "damage_growth": 29.45,
+	  "min_alive_enemies": 44,
+	  "max_alive_enemies": 169
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.422,
+		"total_count": 178,
+		"enemy_types": {
+		  "creeper": 0.28,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  },
+	  {
+		"spawn_per_time": 15,
+		"spawn_interval": 0.402,
+		"total_count": 277,
+		"enemy_types": {
+		  "creeper": 0.28,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.12,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 90,
+	"base_config": {
+	  "hp_growth": 32.8,
+	  "damage_growth": 29.9,
+	  "min_alive_enemies": 45,
+	  "max_alive_enemies": 171
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.42,
+		"total_count": 180,
+		"enemy_types": {
+		  "creeper": 0.29,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.11,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  },
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.4,
+		"total_count": 280,
+		"enemy_types": {
+		  "creeper": 0.29,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.11,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "monitor"
+	}
+  },
+  {
+	"wave": 91,
+	"base_config": {
+	  "hp_growth": 33.25,
+	  "damage_growth": 30.35,
+	  "min_alive_enemies": 45,
+	  "max_alive_enemies": 173
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.418,
+		"total_count": 182,
+		"enemy_types": {
+		  "creeper": 0.29,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.11,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  },
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.398,
+		"total_count": 283,
+		"enemy_types": {
+		  "creeper": 0.29,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.11,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 92,
+	"base_config": {
+	  "hp_growth": 33.7,
+	  "damage_growth": 30.8,
+	  "min_alive_enemies": 46,
+	  "max_alive_enemies": 175
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.416,
+		"total_count": 184,
+		"enemy_types": {
+		  "creeper": 0.29,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.11,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  },
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.396,
+		"total_count": 286,
+		"enemy_types": {
+		  "creeper": 0.29,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.11,
+		  "jug_green": 0.11,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 93,
+	"base_config": {
+	  "hp_growth": 34.15,
+	  "damage_growth": 31.25,
+	  "min_alive_enemies": 46,
+	  "max_alive_enemies": 177
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.414,
+		"total_count": 186,
+		"enemy_types": {
+		  "creeper": 0.3,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.11,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  },
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.394,
+		"total_count": 289,
+		"enemy_types": {
+		  "creeper": 0.3,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.11,
+		  "stapler": 0.07,
+		  "stapler_melee": 0.06,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 94,
+	"base_config": {
+	  "hp_growth": 34.6,
+	  "damage_growth": 31.7,
+	  "min_alive_enemies": 47,
+	  "max_alive_enemies": 179
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.412,
+		"total_count": 188,
+		"enemy_types": {
+		  "creeper": 0.32,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.11,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  },
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.392,
+		"total_count": 292,
+		"enemy_types": {
+		  "creeper": 0.32,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.11,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 95,
+	"base_config": {
+	  "hp_growth": 35.05,
+	  "damage_growth": 32.15,
+	  "min_alive_enemies": 47,
+	  "max_alive_enemies": 181
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.41,
+		"total_count": 190,
+		"enemy_types": {
+		  "creeper": 0.32,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.11,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  },
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.39,
+		"total_count": 295,
+		"enemy_types": {
+		  "creeper": 0.32,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.11,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "monitor"
+	}
+  },
+  {
+	"wave": 96,
+	"base_config": {
+	  "hp_growth": 35.5,
+	  "damage_growth": 32.6,
+	  "min_alive_enemies": 48,
+	  "max_alive_enemies": 183
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.408,
+		"total_count": 192,
+		"enemy_types": {
+		  "creeper": 0.32,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.11,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  },
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.388,
+		"total_count": 298,
+		"enemy_types": {
+		  "creeper": 0.32,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.11,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 97,
+	"base_config": {
+	  "hp_growth": 35.95,
+	  "damage_growth": 33.05,
+	  "min_alive_enemies": 48,
+	  "max_alive_enemies": 185
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.406,
+		"total_count": 194,
+		"enemy_types": {
+		  "creeper": 0.33,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.1,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  },
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.386,
+		"total_count": 301,
+		"enemy_types": {
+		  "creeper": 0.33,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.1,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 98,
+	"base_config": {
+	  "hp_growth": 36.4,
+	  "damage_growth": 33.5,
+	  "min_alive_enemies": 49,
+	  "max_alive_enemies": 187
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.404,
+		"total_count": 196,
+		"enemy_types": {
+		  "creeper": 0.33,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.1,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  },
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.384,
+		"total_count": 304,
+		"enemy_types": {
+		  "creeper": 0.33,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.1,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "stapler_red"
+	}
+  },
+  {
+	"wave": 99,
+	"base_config": {
+	  "hp_growth": 36.85,
+	  "damage_growth": 33.95,
+	  "min_alive_enemies": 49,
+	  "max_alive_enemies": 189
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.402,
+		"total_count": 198,
+		"enemy_types": {
+		  "creeper": 0.33,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.1,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  },
+	  {
+		"spawn_per_time": 16,
+		"spawn_interval": 0.382,
+		"total_count": 307,
+		"enemy_types": {
+		  "creeper": 0.33,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.1,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "jug_boss"
+	}
+  },
+  {
+	"wave": 100,
+	"base_config": {
+	  "hp_growth": 37.3,
+	  "damage_growth": 34.4,
+	  "min_alive_enemies": 50,
+	  "max_alive_enemies": 191
+	},
+	"spawn_phases": [
+	  {
+		"spawn_per_time": 17,
+		"spawn_interval": 0.4,
+		"total_count": 200,
+		"enemy_types": {
+		  "creeper": 0.33,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.1,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  },
+	  {
+		"spawn_per_time": 17,
+		"spawn_interval": 0.38,
+		"total_count": 310,
+		"enemy_types": {
+		  "creeper": 0.33,
+		  "creeper_fast": 0.25,
+		  "jug_melee": 0.1,
+		  "jug_green": 0.1,
+		  "stapler": 0.06,
+		  "stapler_melee": 0.05,
+		  "powerbank": 0.06,
+		  "jug": 0.05
+		}
+	  }
+	],
+	"boss_config": {
+	  "count": 3,
+	  "enemy_id": "monitor"
+	}
+  }
   ]
 }
