@@ -261,7 +261,7 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_styles/background = ExtResource("8_g7k44")
 theme_override_styles/fill = ExtResource("9_fp288")
-max_value = 15.0
+max_value = 10.0
 show_percentage = false
 
 [node name="DamageValue" type="Label" parent="MainContent/WeaponDetailSection/Weapon1Panel/Weapon1Container/Weapon1Content/Weapon1Stats/DamageSection/DamageBar"]
@@ -295,7 +295,7 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_styles/background = ExtResource("8_g7k44")
 theme_override_styles/fill = ExtResource("9_fp288")
-max_value = 500.0
+max_value = 200.0
 show_percentage = false
 
 [node name="SpeedValue" type="Label" parent="MainContent/WeaponDetailSection/Weapon1Panel/Weapon1Container/Weapon1Content/Weapon1Stats/SpeedSection/SpeedBar"]
@@ -321,7 +321,7 @@ custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
-text = "范围"
+text = "击退"
 
 [node name="RangeBar" type="ProgressBar" parent="MainContent/WeaponDetailSection/Weapon1Panel/Weapon1Container/Weapon1Content/Weapon1Stats/RangeSection"]
 custom_minimum_size = Vector2(120, 16)
@@ -329,9 +329,7 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_styles/background = ExtResource("8_g7k44")
 theme_override_styles/fill = ExtResource("9_fp288")
-min_value = 100.0
-max_value = 1800.0
-value = 100.0
+max_value = 400.0
 show_percentage = false
 
 [node name="RangeValue" type="Label" parent="MainContent/WeaponDetailSection/Weapon1Panel/Weapon1Container/Weapon1Content/Weapon1Stats/RangeSection/RangeBar"]
@@ -477,7 +475,7 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_styles/background = ExtResource("8_g7k44")
 theme_override_styles/fill = ExtResource("9_fp288")
-max_value = 15.0
+max_value = 10.0
 show_percentage = false
 
 [node name="DamageValue" type="Label" parent="MainContent/WeaponDetailSection/Weapon2Panel/Weapon2Container/Weapon2Content/Weapon2Stats/DamageSection/DamageBar"]
@@ -511,7 +509,7 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_styles/background = ExtResource("8_g7k44")
 theme_override_styles/fill = ExtResource("9_fp288")
-max_value = 500.0
+max_value = 200.0
 show_percentage = false
 
 [node name="SpeedValue" type="Label" parent="MainContent/WeaponDetailSection/Weapon2Panel/Weapon2Container/Weapon2Content/Weapon2Stats/SpeedSection/SpeedBar"]
@@ -538,7 +536,7 @@ custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
-text = "范围"
+text = "击退"
 
 [node name="RangeBar" type="ProgressBar" parent="MainContent/WeaponDetailSection/Weapon2Panel/Weapon2Container/Weapon2Content/Weapon2Stats/RangeSection"]
 custom_minimum_size = Vector2(120, 16)
@@ -546,9 +544,7 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_styles/background = ExtResource("8_g7k44")
 theme_override_styles/fill = ExtResource("9_fp288")
-min_value = 200.0
-max_value = 1800.0
-value = 200.0
+max_value = 400.0
 show_percentage = false
 
 [node name="RangeValue" type="Label" parent="MainContent/WeaponDetailSection/Weapon2Panel/Weapon2Container/Weapon2Content/Weapon2Stats/RangeSection/RangeBar"]
@@ -630,8 +626,8 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -332.0
-offset_top = -172.0
-offset_bottom = -60.0
+offset_top = -170.0
+offset_bottom = -58.0
 grow_horizontal = 0
 grow_vertical = 0
 texture_normal = ExtResource("16_lfaaf")
