@@ -34,6 +34,9 @@ var selected_class_id: String = ""
 var selected_weapon_ids: Array = []
 var player: CharacterBody2D = null
 
+## Survival 二阶段：当前阶段（1=阶段1，2=阶段2）
+var survival_stage: int = 1
+
 ## Multi模式相关字段
 var current_mode_id: String = "survival"  # 当前游戏模式
 var current_map_id: String = ""  # 当前地图ID
@@ -54,6 +57,7 @@ func reset() -> void:
 	selected_weapon_ids.clear()
 	current_mode_id = "survival"  # 重置为默认模式
 	current_map_id = ""
+	survival_stage = 1
 	# 重置计时器
 	_timer_start_time = 0.0
 	_timer_accumulated = 0.0

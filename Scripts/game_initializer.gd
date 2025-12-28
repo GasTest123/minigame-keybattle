@@ -432,6 +432,13 @@ func _on_wave_flow_step(wave_number: int) -> void:
 	# 4. 胜利检测 (仅针对Wave类型，Key类型由资源回调处理)
 	if current_mode and current_mode.victory_condition_type == "waves":
 		if current_mode.check_victory_condition():
+			# Survival 二阶段：阶段1达成时不切场景，弹覆盖层胜利UI，点Next继续从31波
+			if _should_trigger_survival_stage_clear(wave_number):
+				print("[Flow] Survival 阶段1达成：弹出结算覆盖层，等待 Next 继续")
+				_trigger_survival_stage_clear()
+				_reset_flow_guard()
+				return
+			
 			print("[Flow] 触发胜利！")
 			_trigger_victory()
 			_reset_flow_guard()
@@ -488,6 +495,105 @@ func _open_shop_flow() -> void:
 	GameState.change_state(GameState.State.SHOPPING)
 	# 通知商店打开
 	scene_tree_shop.call_group("upgrade_shop", "open_shop")
+
+## Survival 二阶段：是否应触发“阶段1结算覆盖层”
+func _should_trigger_survival_stage_clear(wave_number: int) -> bool:
+	if GameMain.current_mode_id != "survival":
+		return false
+	
+	if not GameMain.current_session or not ("survival_stage" in GameMain.current_session):
+		return false
+	
+	var stage := int(GameMain.current_session.survival_stage)
+	if stage != 1:
+		return false
+	
+	if not current_mode:
+		return false
+	
+	var v1 := int(current_mode.victory_waves)
+	var v2 := int(current_mode.victory2_waves)
+	if v2 <= v1:
+		return false
+	
+	# 仅在达到阶段1目标时触发
+	return wave_number >= v1
+
+## Survival 二阶段：触发“阶段1结算覆盖层”，等待 Next 继续
+func _trigger_survival_stage_clear() -> void:
+	if not is_inside_tree():
+		return
+	
+	var tree = get_tree()
+	if tree == null:
+		return
+	
+	# 暂停游戏（并手动暂停计时器：GameState.GAME_PAUSED 默认不会暂停计时器）
+	GameState.change_state(GameState.State.GAME_PAUSED)
+	if GameMain.current_session:
+		GameMain.current_session.pause_timer()
+	
+	var victory_scene = load("res://scenes/UI/victory_ui.tscn")
+	if not victory_scene:
+		push_error("[GameInitializer] 无法加载VictoryUI场景（阶段1结算覆盖层）")
+		GameState.change_state(GameState.State.WAVE_CLEARING)
+		if GameMain.current_session:
+			GameMain.current_session.resume_timer()
+		return
+	
+	var ui = victory_scene.instantiate()
+	# 暂停期间也可交互
+	ui.process_mode = Node.PROCESS_MODE_ALWAYS
+
+	# 用 CanvasLayer 包一层：确保在屏幕空间、层级在最上方、布局不受场景变换影响
+	var overlay_layer := CanvasLayer.new()
+	overlay_layer.name = "VictoryOverlayLayer"
+	overlay_layer.layer = 100
+	overlay_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	tree.root.add_child(overlay_layer)
+
+	# 标记为“阶段1结算覆盖层”（必须在 add_child 前设置，确保 _ready() 里能读到）
+	if ui is VictoryUI:
+		(ui as VictoryUI).is_stage_clear = true
+	else:
+		# 兜底：即使类型识别失败，也尽量写入属性
+		ui.set("is_stage_clear", true)
+	
+	# 监听 Next：切换到阶段2并开始下一波（从31开始）
+	if ui.has_signal("next_pressed"):
+		ui.next_pressed.connect(func():
+			# 切换阶段
+			if GameMain.current_session and ("survival_stage" in GameMain.current_session):
+				GameMain.current_session.survival_stage = 2
+				GameMain.current_session.resume_timer()
+			
+			# 关闭覆盖层UI
+			if overlay_layer and is_instance_valid(overlay_layer):
+				overlay_layer.queue_free()
+			
+			# 恢复游戏并开下一波
+			GameState.change_state(GameState.State.WAVE_CLEARING)
+			var t = get_tree()
+			if t == null:
+				return
+			var wave_manager = t.get_first_node_in_group("wave_manager")
+			if wave_manager and wave_manager.has_method("start_next_wave"):
+				wave_manager.start_next_wave()
+		, CONNECT_ONE_SHOT)
+	else:
+		push_warning("[GameInitializer] VictoryUI 缺少 next_pressed 信号，无法继续到阶段2")
+
+	# 最后再加入场景树，触发 _ready()
+	overlay_layer.add_child(ui)
+
+	# 强制全屏锚点（避免某些情况下 Control 未正确铺满）
+	if ui is Control:
+		var c := ui as Control
+		c.set_anchors_preset(Control.PRESET_FULL_RECT)
+		c.offset_left = 0
+		c.offset_top = 0
+		c.offset_right = 0
+		c.offset_bottom = 0
 
 ## 商店关闭回调
 func _on_shop_closed() -> void:

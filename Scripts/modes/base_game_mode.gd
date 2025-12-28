@@ -18,7 +18,13 @@ var wave_config_id: String = "default"  # 波次配置ID（对应JSON文件名�
 
 ## 胜利条件配置参数
 var victory_waves: int = 20  # waves类型胜利条件：需要完成的波数
+## 可选：二阶段胜利目标（仅部分模式使用，如 survival）
+var victory2_waves: int = 0
 var victory_keys: int = 200  # keys类型胜利条件：需要的钥匙数
+
+## 获取“当前目标波数”（可被具体模式覆写，用于阶段/动态目标）
+func get_victory_waves_target() -> int:
+	return victory_waves
 
 ## 失败条件配置参数
 var allow_revive: bool = true  # 是否允许复活（影响失败判定逻辑）
@@ -104,9 +110,10 @@ func _check_waves_victory() -> bool:
 	if "is_wave_in_progress" in wave_manager and wave_manager.is_wave_in_progress:
 		completed_waves -= 1
 	
-	var result = completed_waves >= victory_waves
+	var target_waves := get_victory_waves_target()
+	var result = completed_waves >= target_waves
 	print("[BaseGameMode] 胜利检测: current_wave=%d, completed=%d, target=%d, result=%s" % 
-		[wave_manager.current_wave, completed_waves, victory_waves, result])
+		[wave_manager.current_wave, completed_waves, target_waves, result])
 	return result
 
 ## 钥匙胜利检查（统一实现，通过配置参数控制）
@@ -133,7 +140,7 @@ func get_victory_description() -> String:
 		"keys":
 			return "持有%d把钥匙" % victory_keys
 		"waves":
-			return "消灭%d波敌人" % victory_waves
+			return "消灭%d波敌人" % get_victory_waves_target()
 		"time":
 			return "生存指定时间"
 		"survival":
@@ -152,7 +159,7 @@ func get_progress_text() -> String:
 				completed_waves = wave_manager.current_wave
 				if "is_wave_in_progress" in wave_manager and wave_manager.is_wave_in_progress:
 					completed_waves -= 1
-			return "%d / %d" % [completed_waves, victory_waves]
+			return "%d / %d" % [completed_waves, get_victory_waves_target()]
 		"time":
 			return "0 / ?"
 		"survival":

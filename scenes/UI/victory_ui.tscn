@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://mbtojpq22jkk"]
+[gd_scene load_steps=8 format=3 uid="uid://mbtojpq22jkk"]
 
 [ext_resource type="Script" uid="uid://28h8g6pjuvbs" path="res://Scripts/UI/victory_ui.gd" id="1_victory"]
 [ext_resource type="Texture2D" uid="uid://bw3uaq0t881dt" path="res://assets/UI/victory_ui/text_victory_01.png" id="2_u2ikw"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://dxenabr8khac6" path="res://assets/UI/class_poster/pose-mrwill-01.png" id="3_uimwy"]
 [ext_resource type="Texture2D" uid="uid://c6nku3xu00b2f" path="res://assets/UI/common/btn-right-white-01.png" id="4_uimwy"]
 [ext_resource type="FontFile" uid="uid://dc6bkofr1if2e" path="res://assets/fonts/CangErYuYangTiW05-2.ttf" id="6_aimmv"]
+[ext_resource type="Texture2D" uid="uid://diebj44vwffon" path="res://assets/UI/common/btn_mid_gred_01.png" id="7_wk34e"]
 
 [node name="VictoryUI" type="Control"]
 layout_mode = 3
@@ -170,3 +171,38 @@ theme_override_colors/font_color = Color(1, 1, 1, 0.6745098)
 theme_override_font_sizes/font_size = 20
 text = "记录上传中……建议稍后再切换面"
 vertical_alignment = 1
+
+[node name="NextButton" type="TextureButton" parent="MainPanel"]
+visible = false
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -371.99988
+offset_top = -269.0
+offset_right = -124.99988
+offset_bottom = -189.0
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(1.2, 1.2)
+texture_normal = ExtResource("7_wk34e")
+
+[node name="NextLabel" type="Label" parent="MainPanel/NextButton"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.5
+offset_top = -12.0
+offset_right = 20.5
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("6_aimmv")
+theme_override_font_sizes/font_size = 42
+text = "继续战斗"

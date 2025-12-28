@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://nlex2b6w38gk" path="res://Scripts/UI/game_ui.gd" id="1_168mx"]
 [ext_resource type="Script" uid="uid://bgraqcbpydou6" path="res://Scripts/UI/dash_ui.gd" id="1_dash_ui"]
+[ext_resource type="Script" uid="uid://dcay1qtesrai" path="res://Scripts/UI/enemy_direct_manager.gd" id="1_enemy_direct_mgr"]
 [ext_resource type="Script" uid="uid://cljkxwaoks3ai" path="res://Scripts/UI/skill_icon.gd" id="1_skill_icon"]
-[ext_resource type="Script" uid="uid://d7p5k3n2x0m1a" path="res://Scripts/UI/enemy_direct_manager.gd" id="1_enemy_direct_mgr"]
 [ext_resource type="PackedScene" uid="uid://cqi5j0ht5t7pd" path="res://scenes/UI/components/resource_counter.tscn" id="2_5b3ti"]
 [ext_resource type="PackedScene" uid="uid://d3m1tn5m8yxoe" path="res://scenes/UI/components/player_stats_info.tscn" id="2_owrpm"]
 [ext_resource type="Texture2D" uid="uid://d0y4qqnoa48r2" path="res://assets/items/mkey.png" id="3_5b3ti"]
@@ -467,6 +467,7 @@ script = ExtResource("10_dmgflash")
 [node name="EnemyDirectRoot" type="Control" parent="."]
 z_index = 120
 z_as_relative = false
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -475,7 +476,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="EnemyDirectManager" type="Control" parent="EnemyDirectRoot"]
-anchors_preset = 15
+anchors_preset = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2

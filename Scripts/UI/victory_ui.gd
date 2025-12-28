@@ -4,16 +4,27 @@ class_name VictoryUI
 ## 胜利UI
 ## 当玩家达到目标时显示
 @onready var return_button: TextureButton = $MainPanel/ReturnButton
+@onready var next_button: TextureButton = $MainPanel/NextButton
 @onready var main_panel: ColorRect = $MainPanel
 @onready var bg_key: TextureRect = $MainPanel/"bg-key"
 @onready var victory_text: TextureRect = $MainPanel/text
 @onready var poster: TextureRect = $MainPanel/poster
+
+signal next_pressed()
+
+## 是否为“阶段1通关结算覆盖层”（不是最终胜利切场景）
+var is_stage_clear: bool = false
 
 ## 模式样式配置
 const MODE_STYLES = {
 	"survival": {
 		"panel_color": Color(0.20392157, 0.84313726, 0.62352943, 1),  # #34d79f
 		"bg_texture": "res://assets/UI/common/bg-greenkey-01.png",
+		"text_texture": "res://assets/UI/victory_ui/text_victory_01.png"
+	},
+	"survival_stage2": {
+		"panel_color": Color(0.3882353, 0.06666667, 0.64705884, 1),  # #6311a5
+		"bg_texture": "res://assets/UI/common/bg-purplekey-01.png",
 		"text_texture": "res://assets/UI/victory_ui/text_victory_01.png"
 	},
 	"multi": {
@@ -43,16 +54,25 @@ var bg_texture_size: Vector2 = Vector2.ZERO
 var scroll_offset: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
-	# 确保状态正确
-	if GameState.current_state != GameState.State.GAME_VICTORY:
-		GameState.change_state(GameState.State.GAME_VICTORY)
+	# 最终胜利切场景进入本UI：确保状态为 GAME_VICTORY
+	# 阶段1结算覆盖层：不强制切到 GAME_VICTORY（避免影响继续流程）
+	if not is_stage_clear:
+		if GameState.current_state != GameState.State.GAME_VICTORY:
+			GameState.change_state(GameState.State.GAME_VICTORY)
 	
 	# 连接返回按钮
 	if return_button:
 		return_button.pressed.connect(_on_return_button_pressed)
 	
+	# 连接继续按钮
+	if next_button:
+		next_button.pressed.connect(_on_next_button_pressed)
+	
 	# 根据模式设置样式
 	_setup_mode_style()
+	
+	# 配置 NextButton 显示策略
+	_setup_next_button_visibility()
 	
 	# 初始化背景
 	_setup_scrolling_background()
@@ -66,6 +86,27 @@ func _ready() -> void:
 	# 初始化上传状态显示
 	_setup_upload_state_display()
 
+## 配置 NextButton 的显示策略
+func _setup_next_button_visibility() -> void:
+	if not next_button:
+		return
+	
+	var mode_id = GameMain.current_mode_id
+	if mode_id.is_empty():
+		mode_id = "survival"
+	
+	# Multi模式永不显示
+	if mode_id != "survival":
+		next_button.visible = false
+		return
+	
+	# Survival：仅“阶段1结算覆盖层”显示 Next；最终胜利不显示
+	var stage := 1
+	if GameMain.current_session and "survival_stage" in GameMain.current_session:
+		stage = int(GameMain.current_session.survival_stage)
+	
+	next_button.visible = is_stage_clear and stage == 1
+
 ## 根据模式设置样式
 func _setup_mode_style() -> void:
 	var mode_id = GameMain.current_mode_id
@@ -73,7 +114,17 @@ func _setup_mode_style() -> void:
 		mode_id = "survival"
 	
 	# 获取模式样式配置，默认使用 survival 样式
-	var style = MODE_STYLES.get(mode_id, MODE_STYLES["survival"])
+	var style_key = mode_id
+	
+	# Survival 阶段2最终胜利：切换为紫色主题（阶段1覆盖层仍保持绿色）
+	if mode_id == "survival" and not is_stage_clear:
+		var stage := 1
+		if GameMain.current_session and "survival_stage" in GameMain.current_session:
+			stage = int(GameMain.current_session.survival_stage)
+		if stage >= 2:
+			style_key = "survival_stage2"
+	
+	var style = MODE_STYLES.get(style_key, MODE_STYLES["survival"])
 	
 	# 设置面板颜色
 	if main_panel:
@@ -151,8 +202,19 @@ func _update_poster() -> void:
 ## 返回主菜单
 func _on_return_button_pressed() -> void:
 	print("[VictoryUI] 返回主菜单...")
+	# 如果是阶段1覆盖层，优先清理掉 CanvasLayer 包装，避免场景切换后残留
+	if is_stage_clear:
+		var p = get_parent()
+		if p and is_instance_valid(p) and p is CanvasLayer:
+			p.queue_free()
+		else:
+			queue_free()
 	# 使用SceneCleanupManager安全切换场景（会清理所有游戏对象并重置数据）
 	SceneCleanupManager.change_scene_safely("res://scenes/UI/main_title.tscn")
+
+## 继续战斗（阶段1通关后）
+func _on_next_button_pressed() -> void:
+	next_pressed.emit()
 
 ## 更新记录显示
 func _update_record_display() -> void:
@@ -220,7 +282,8 @@ func _update_multi_record() -> void:
 func _format_time_chinese(seconds: float) -> String:
 	var total_seconds = int(seconds)
 	var centiseconds = int((seconds - total_seconds) * 100)
-	var mins = total_seconds / 60
+	# 显式用浮点除法，避免 INTEGER_DIVISION 警告
+	var mins = int(total_seconds / 60.0)
 	var secs = total_seconds % 60
 	return "%d分%02d秒%02d" % [mins, secs, centiseconds]
 
@@ -266,7 +329,7 @@ func _on_upload_state_changed(mode_id: String, state: String) -> void:
 	_update_upload_state_display(mode_id, state)
 
 ## 更新上传状态显示
-func _update_upload_state_display(mode_id: String, state: String) -> void:
+func _update_upload_state_display(_mode_id: String, state: String) -> void:
 	if not upload_state_label:
 		return
 	
