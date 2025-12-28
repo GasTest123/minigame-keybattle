@@ -138,7 +138,7 @@ static func initialize_bullets() -> void:
 	## 追踪导弹子弹
 	var ms_bullet = BulletData.new("ms_bullet", 1000.0, 4.0, "res://assets/weapon/missle/ms-bullet.png")
 	ms_bullet.bullet_name = "追踪导弹子弹"
-	mg_bullet.knockback_force = 200.0  # 子弹有击退效果
+	ms_bullet.knockback_force = 200.0  # 子弹有击退效果
 	ms_bullet.scale = Vector2(0.5, 0.5)
 	ms_bullet.movement_type = BulletData.MovementType.HOMING
 	ms_bullet.movement_params = {
