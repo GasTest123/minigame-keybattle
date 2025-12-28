@@ -18,4 +18,5 @@ description = "魔法武器爆炸范围提升10%"
 cost = 3
 icon_path = "res://assets/upgrades/up-magic-explode.png"
 actual_cost = 3
+weight = 50
 stats_modifier = SubResource("Resource_bgx3x")

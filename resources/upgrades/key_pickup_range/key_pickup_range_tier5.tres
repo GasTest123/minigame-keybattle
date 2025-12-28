@@ -19,4 +19,5 @@ cost = 48
 icon_path = "res://assets/upgrades/up-key.png"
 quality = 5
 actual_cost = 48
+weight = 50
 stats_modifier = SubResource("Resource_stats")

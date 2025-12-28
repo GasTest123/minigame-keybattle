@@ -19,5 +19,6 @@ icon_path = "res://assets/upgrades/up-heal.png"
 quality = 3
 base_cost = 3
 actual_cost = 12
+weight = 50
 custom_value = 30.0
 stats_modifier = SubResource("Resource_combat_stats")

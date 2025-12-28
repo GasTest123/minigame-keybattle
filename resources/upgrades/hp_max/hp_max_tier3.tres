@@ -17,5 +17,4 @@ cost = 12
 icon_path = "res://assets/upgrades/up-maxhp.png"
 quality = 3
 actual_cost = 12
-weight = 200
 stats_modifier = SubResource("Resource_5tnp0")

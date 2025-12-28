@@ -18,4 +18,5 @@ description = "钥匙拾取范围扩大10%"
 cost = 3
 icon_path = "res://assets/upgrades/up-key.png"
 actual_cost = 3
+weight = 50
 stats_modifier = SubResource("Resource_stats")

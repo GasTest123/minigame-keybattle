@@ -19,4 +19,5 @@ cost = 12
 icon_path = "res://assets/upgrades/up-magic-explode.png"
 quality = 3
 actual_cost = 12
+weight = 50
 stats_modifier = SubResource("Resource_vut4t")

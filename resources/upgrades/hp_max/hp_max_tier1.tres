@@ -16,5 +16,4 @@ description = "增加5点最大生命值"
 cost = 3
 icon_path = "res://assets/upgrades/up-maxhp.png"
 actual_cost = 3
-weight = 200
 stats_modifier = SubResource("Resource_y0w7s")
