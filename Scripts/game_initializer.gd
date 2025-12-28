@@ -732,7 +732,8 @@ func _trigger_victory() -> void:
 		GameMain.current_session.stop_timer()
 	
 	# 获取当前波次（胜利时的最终波次）
-	var victory_wave = current_mode.victory_waves if current_mode else 30
+	# Survival 二阶段：使用动态目标波数（阶段2为 victory2_waves）
+	var victory_wave = current_mode.get_victory_waves_target() if current_mode else 30
 	
 	# 更新排行榜记录（Survival 模式在胜利时更新，使用 wave 优先判定）
 	if GameMain.current_mode_id == "survival":

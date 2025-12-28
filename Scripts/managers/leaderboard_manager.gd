@@ -42,6 +42,10 @@ var _session_upload_result: Dictionary = {
 	"multi": "none"
 }
 
+## 计算记录指纹：用于判断上传期间是否产生了更新
+func _record_fingerprint(data: Dictionary) -> String:
+	return JSON.stringify(data)
+
 func _ready() -> void:
 	load_records()
 	print("[LeaderboardManager] 排行榜管理器初始化完成")
@@ -303,9 +307,14 @@ func _do_upload(type: int, data: Dictionary) -> bool:
 func _upload_in_background(mode_id: String, type: int, data: Dictionary) -> void:
 	# 防止重复上传
 	if _uploading.get(mode_id, false):
-		print("[LeaderboardManager] %s 模式正在上传中，跳过" % mode_id)
+		# 上传过程中产生了新纪录：标记 pending，等待本次上传结束后补传最新数据
+		_pending_upload[mode_id] = true
+		_session_upload_result[mode_id] = "pending"
+		upload_state_changed.emit(mode_id, "pending")
+		print("[LeaderboardManager] %s 模式正在上传中，标记pending等待补传" % mode_id)
 		return
 	
+	var start_fp := _record_fingerprint(data)
 	_uploading[mode_id] = true
 	_session_upload_result[mode_id] = "uploading"
 	
@@ -318,7 +327,23 @@ func _upload_in_background(mode_id: String, type: int, data: Dictionary) -> void
 	_uploading[mode_id] = false
 	
 	if success:
-		# 上传成功，清除待上传标记
+		# 如果上传期间记录发生变化：保持 pending 并立即补传最新记录，保证最终一致
+		var current_record = records.get(mode_id)
+		var current_fp := ""
+		if current_record is Dictionary:
+			current_fp = _record_fingerprint(current_record)
+		
+		if current_fp != start_fp:
+			_pending_upload[mode_id] = true
+			_session_upload_result[mode_id] = "pending"
+			save_records()
+			upload_state_changed.emit(mode_id, "pending")
+			print("[LeaderboardManager] %s 模式上传成功但记录已更新，开始补传最新数据" % mode_id)
+			# 延后一帧再触发，避免重入
+			call_deferred("_upload_in_background", mode_id, type, current_record if (current_record is Dictionary) else data)
+			return
+		
+		# 上传成功且无更新：清除待上传标记
 		_pending_upload[mode_id] = false
 		_session_upload_result[mode_id] = "success"
 		save_records()  # 保存更新后的状态
