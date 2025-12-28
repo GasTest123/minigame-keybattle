@@ -13,3 +13,4 @@ move_speed = 500.0
 attack_interval = 0.3
 attack_range = 58.0
 hp_growth_per_wave = 1.0
+damage_growth_per_wave = 0.5
