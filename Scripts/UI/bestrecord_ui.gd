@@ -20,6 +20,11 @@ var ch2_state_label: Label
 var ch2_upload_btn: TextureButton
 var ch2_archived_time: Label
 
+# 删除按钮（默认隐藏，按 R 键切换显示）
+var ch1_delete_btn: TextureButton
+var ch2_delete_btn: TextureButton
+var _delete_btns_visible: bool = false
+
 # 状态颜色
 const COLOR_UPLOADED = Color(0.2, 0.8, 0.2)   # 绿色 - 已上传
 const COLOR_NOT_UPLOADED = Color(1.0, 1.0, 1.0)  # 白色 - 未上传
@@ -53,12 +58,24 @@ func _ready() -> void:
 	ch2_upload_btn = ch2_context.get_node("ch2-upload")
 	ch2_archived_time = panel.get_node("MarginContainer/VBoxContainer/ch2-time-Container/ch2-archived-time")
 	
+	# 删除按钮节点
+	ch1_delete_btn = ch1_context.get_node("ch1-delete")
+	ch2_delete_btn = ch2_context.get_node("ch2-delete")
+	
+	# 默认隐藏删除按钮
+	ch1_delete_btn.visible = false
+	ch2_delete_btn.visible = false
+	
 	# 连接关闭按钮
 	close_btn.pressed.connect(_on_close_pressed)
 	
 	# 连接上传按钮
 	ch1_upload_btn.pressed.connect(_on_ch1_upload_pressed)
 	ch2_upload_btn.pressed.connect(_on_ch2_upload_pressed)
+	
+	# 连接删除按钮
+	ch1_delete_btn.pressed.connect(_on_ch1_delete_pressed)
+	ch2_delete_btn.pressed.connect(_on_ch2_delete_pressed)
 	
 	# 监听上传状态变化
 	LeaderboardManager.upload_state_changed.connect(_on_upload_state_changed)
@@ -74,6 +91,18 @@ func _ready() -> void:
 	
 	# 检查服务器连接
 	_check_server_connection()
+
+func _input(event: InputEvent) -> void:
+	# 按 R 键切换删除按钮的显示/隐藏
+	if event is InputEventKey and event.pressed and event.keycode == KEY_R:
+		_toggle_delete_buttons()
+
+## 切换删除按钮的显示/隐藏
+func _toggle_delete_buttons() -> void:
+	_delete_btns_visible = not _delete_btns_visible
+	ch1_delete_btn.visible = _delete_btns_visible
+	ch2_delete_btn.visible = _delete_btns_visible
+	print("[BestRecordUI] 删除按钮 %s" % ("显示" if _delete_btns_visible else "隐藏"))
 
 func _on_close_pressed() -> void:
 	# 停止计时器
@@ -235,10 +264,10 @@ func _check_server_connection() -> void:
 	server_ping_label.visible = false
 	
 	# 异步检查服务器连接
-	var is_connected = await ApiManager.ping_server()
+	var server_reachable = await ApiManager.ping_server()
 	
 	# 如果连接失败，显示提示
-	if not is_connected:
+	if not server_reachable:
 		server_ping_label.visible = true
 		print("[BestRecordUI] 服务器连接失败")
 	else:
@@ -252,6 +281,18 @@ func _on_ch1_upload_pressed() -> void:
 ## 点击 Multi 模式上传按钮
 func _on_ch2_upload_pressed() -> void:
 	LeaderboardManager.manual_upload("multi")
+
+## 点击 Survival 模式删除按钮
+func _on_ch1_delete_pressed() -> void:
+	LeaderboardManager.clear_record("survival")
+	_refresh_survival_display()
+	print("[BestRecordUI] 已清空 Survival 模式纪录")
+
+## 点击 Multi 模式删除按钮
+func _on_ch2_delete_pressed() -> void:
+	LeaderboardManager.clear_record("multi")
+	_refresh_multi_display()
+	print("[BestRecordUI] 已清空 Multi 模式纪录")
 
 ## 格式化时间为 xx分xx秒xx
 func _format_time(time_seconds: float) -> String:

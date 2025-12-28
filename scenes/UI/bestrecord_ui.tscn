@@ -156,6 +156,34 @@ theme_override_fonts/font = ExtResource("2_56t5j")
 theme_override_font_sizes/font_size = 28
 text = "上传"
 
+[node name="ch1-delete" type="TextureButton" parent="panel/MarginContainer/VBoxContainer/ch1-context-Container"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+texture_normal = ExtResource("3_3jp2w")
+texture_pressed = ExtResource("3_3jp2w")
+texture_hover = ExtResource("3_3jp2w")
+texture_disabled = ExtResource("3_3jp2w")
+texture_focused = ExtResource("3_3jp2w")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Label" type="Label" parent="panel/MarginContainer/VBoxContainer/ch1-context-Container/ch1-delete"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_56t5j")
+theme_override_font_sizes/font_size = 24
+text = "清空纪录"
+
 [node name="ch1-time-Container" type="HBoxContainer" parent="panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 alignment = 1
@@ -212,7 +240,6 @@ text = "上传中"
 vertical_alignment = 1
 
 [node name="ch2-upload" type="TextureButton" parent="panel/MarginContainer/VBoxContainer/ch2-context-Container"]
-visible = false
 custom_minimum_size = Vector2(120, 40)
 layout_mode = 2
 texture_normal = ExtResource("3_3jp2w")
@@ -239,6 +266,34 @@ grow_vertical = 2
 theme_override_fonts/font = ExtResource("2_56t5j")
 theme_override_font_sizes/font_size = 28
 text = "上传"
+
+[node name="ch2-delete" type="TextureButton" parent="panel/MarginContainer/VBoxContainer/ch2-context-Container"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+texture_normal = ExtResource("3_3jp2w")
+texture_pressed = ExtResource("3_3jp2w")
+texture_hover = ExtResource("3_3jp2w")
+texture_disabled = ExtResource("3_3jp2w")
+texture_focused = ExtResource("3_3jp2w")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Label" type="Label" parent="panel/MarginContainer/VBoxContainer/ch2-context-Container/ch2-delete"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_56t5j")
+theme_override_font_sizes/font_size = 24
+text = "清空纪录"
 
 [node name="ch2-time-Container" type="HBoxContainer" parent="panel/MarginContainer/VBoxContainer"]
 layout_mode = 2

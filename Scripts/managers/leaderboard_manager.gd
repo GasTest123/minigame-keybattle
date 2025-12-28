@@ -176,6 +176,21 @@ func clear_all_records() -> void:
 		DirAccess.remove_absolute(SAVE_FILE_PATH)
 	print("[LeaderboardManager] 所有记录已清除")
 
+## 清除指定模式的记录
+## mode_id: "survival" 或 "multi"
+func clear_record(mode_id: String) -> void:
+	if mode_id != "survival" and mode_id != "multi":
+		push_error("[LeaderboardManager] 无效的模式ID: %s" % mode_id)
+		return
+	
+	records[mode_id] = null
+	_pending_upload[mode_id] = false
+	_session_new_record[mode_id] = false
+	_session_upload_result[mode_id] = "none"
+	
+	save_records()
+	print("[LeaderboardManager] %s 模式记录已清除" % mode_id)
+
 ## ==================== 保存/加载 ====================
 
 ## 保存记录到文件（包含上传状态）
