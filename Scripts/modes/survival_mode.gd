@@ -3,6 +3,11 @@ class_name SurvivalMode
 
 ## 生存模式 - 当前游戏的默认模式
 
+## 是否允许阶段2(>victory_waves)继续写入“最高波次/最短时间”记录
+## - false：仅记录到 victory_waves（默认30），30波之后不再写入（避免阶段2覆盖记录）
+## - true：30波之后也继续写入记录（最终可记录到 victory2_waves）
+@export var record_victory2_enabled: bool = false
+
 func _init() -> void:
 	mode_id = "survival"
 	mode_name = "生存模式"

@@ -389,25 +389,29 @@ func _on_wave_flow_step(wave_number: int) -> void:
 
 	# 到这里说明本次 wave_completed 是“有效结算”（没有放弃、也不是结束态误触发）
 	# 每波完成时更新记录（统一在此处处理，避免在多处重复）
-	SaveManager.try_update_best_wave(GameMain.current_mode_id, wave_number)
+	if GameMain.current_mode_id != "survival" or _should_update_survival_records_for_wave(wave_number):
+		SaveManager.try_update_best_wave(GameMain.current_mode_id, wave_number)
 	if GameMain.current_mode_id == "multi":
 		LeaderboardManager.try_update_multi_record(wave_number, SaveManager.get_total_death_count())
 	elif GameMain.current_mode_id == "survival":
-		# Survival：wave 优先判定；但要防止 session 被 reset 后 elapsed_time 变 0，覆盖出错
-		if GameMain.current_session == null:
-			print("[FlowGuard] current_session 为空，跳过 survival 记录更新 wave=%d" % wave_number)
+		if not _should_update_survival_records_for_wave(wave_number):
+			print("[Flow] Survival记录开关关闭：跳过记录更新 wave=%d" % wave_number)
 		else:
-			var elapsed_time := GameMain.current_session.get_elapsed_time()
-			var death_count := SaveManager.get_total_death_count()
-			
-			# 计时器有效性检查：未启动/被重置时通常为 0
-			var timer_started := true
-			if "_timer_start_time" in GameMain.current_session:
-				timer_started = float(GameMain.current_session._timer_start_time) > 0.0
-			if (not timer_started) or elapsed_time <= 0.0:
-				print("[FlowGuard] elapsed_time 异常(%.2f, started=%s)，跳过 survival 记录更新 wave=%d" % [elapsed_time, str(timer_started), wave_number])
+		# Survival：wave 优先判定；但要防止 session 被 reset 后 elapsed_time 变 0，覆盖出错
+			if GameMain.current_session == null:
+				print("[FlowGuard] current_session 为空，跳过 survival 记录更新 wave=%d" % wave_number)
 			else:
-				LeaderboardManager.try_update_survival_record(wave_number, elapsed_time, death_count)
+				var elapsed_time := GameMain.current_session.get_elapsed_time()
+				var death_count := SaveManager.get_total_death_count()
+				
+				# 计时器有效性检查：未启动/被重置时通常为 0
+				var timer_started := true
+				if "_timer_start_time" in GameMain.current_session:
+					timer_started = float(GameMain.current_session._timer_start_time) > 0.0
+				if (not timer_started) or elapsed_time <= 0.0:
+					print("[FlowGuard] elapsed_time 异常(%.2f, started=%s)，跳过 survival 记录更新 wave=%d" % [elapsed_time, str(timer_started), wave_number])
+				else:
+					LeaderboardManager.try_update_survival_record(wave_number, elapsed_time, death_count)
 
 	# 2. 进入清扫阶段（捡东西时间），也就是你想要的延迟
 	GameState.change_state(GameState.State.WAVE_CLEARING)
@@ -518,6 +522,28 @@ func _should_trigger_survival_stage_clear(wave_number: int) -> bool:
 	
 	# 仅在达到阶段1目标时触发
 	return wave_number >= v1
+
+## Survival 二阶段：是否允许把“胜利目标波数之后”的数据写入记录
+## - 若 SurvivalMode.record_victory2_enabled=false，则只记录到 victory_waves（默认30）
+func _should_update_survival_records_for_wave(wave_number: int) -> bool:
+	if GameMain.current_mode_id != "survival":
+		return true
+	if current_mode == null:
+		return true
+	
+	# 默认允许（兼容旧模式实例）
+	var enabled := true
+	if current_mode is SurvivalMode:
+		enabled = bool((current_mode as SurvivalMode).record_victory2_enabled)
+	elif "record_victory2_enabled" in current_mode:
+		enabled = bool(current_mode.get("record_victory2_enabled"))
+	
+	if enabled:
+		return true
+	
+	# 关闭开关：只记录到 victory_waves
+	var cap := int(current_mode.victory_waves)
+	return wave_number <= cap
 
 ## Survival 二阶段：触发“阶段1结算覆盖层”，等待 Next 继续
 func _trigger_survival_stage_clear() -> void:
@@ -736,10 +762,13 @@ func _trigger_victory() -> void:
 	var victory_wave = current_mode.get_victory_waves_target() if current_mode else 30
 	
 	# 更新排行榜记录（Survival 模式在胜利时更新，使用 wave 优先判定）
-	if GameMain.current_mode_id == "survival":
-		var elapsed_time = GameMain.current_session.get_elapsed_time() if GameMain.current_session else 0.0
-		var death_count = SaveManager.get_total_death_count()
-		var is_new_record = LeaderboardManager.try_update_survival_record(victory_wave, elapsed_time, death_count)
+	if GameMain.current_mode_id == "survival" and not _should_update_survival_records_for_wave(victory_wave):
+		# 若关闭二阶段记录：阶段2最终胜利不应覆盖（时间更长），只保留 victory_waves 的最短时间
+		print("[GameInitializer] Survival记录开关关闭：跳过胜利结算记录 wave=%d" % victory_wave)
+	elif GameMain.current_mode_id == "survival":
+		var elapsed_time := GameMain.current_session.get_elapsed_time() if GameMain.current_session else 0.0
+		var death_count := SaveManager.get_total_death_count()
+		var is_new_record := LeaderboardManager.try_update_survival_record(victory_wave, elapsed_time, death_count)
 		if is_new_record:
 			print("[GameInitializer] Survival 模式新纪录！波次: %d, 时间: %.2f秒" % [victory_wave, elapsed_time])
 	
