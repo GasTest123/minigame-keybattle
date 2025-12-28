@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="KeyBattle"
-config/version="0.9.4.1"
+config/version="0.9.5.2"
 config/tags=PackedStringArray("working")
 run/main_scene="uid://w2e2jg7hadx"
 config/features=PackedStringArray("4.5", "GL Compatibility")
