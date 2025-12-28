@@ -304,17 +304,42 @@ func _update_weapon_panel(slot: int, weapon_data: WeaponData) -> void:
 	if speed_bar:
 		speed_bar.value = attacks_per_minute
 	
-	# 范围
-	var range_val = weapon_data.range if weapon_data.weapon_type == WeaponData.WeaponType.RANGED else weapon_data.hit_range
+	# 击退（优先武器自身击退力，否则读取对应子弹击退力）
+	var knockback_val := _get_weapon_knockback_force(weapon_data)
 	if range_value:
-		range_value.text = str(int(range_val))
+		range_value.text = str(int(knockback_val))
 	if range_bar:
-		range_bar.value = range_val
+		range_bar.value = knockback_val
 	
 	# 描述 + 特效
 	var desc_and_effect = _get_description_and_effect_text(weapon_data)
 	if effect_text:
 		effect_text.text = desc_and_effect
+
+## 获取武器的“基础击退力”（用于选择界面展示，不叠加玩家属性）
+## 规则：武器 behavior_params.knockback_force > WeaponData.knockback_force（兼容字段）> bullet_id 对应子弹 knockback_force
+func _get_weapon_knockback_force(weapon_data: WeaponData) -> float:
+	if weapon_data == null:
+		return 0.0
+	
+	# 1) 先看新版 behavior_params（近战武器通常在这里）
+	var params := weapon_data.get_behavior_params()
+	if params.has("knockback_force"):
+		return max(0.0, float(params.get("knockback_force", 0.0)))
+	
+	# 2) 旧版兼容字段
+	if weapon_data.knockback_force > 0.0:
+		return max(0.0, float(weapon_data.knockback_force))
+	
+	# 3) 远程武器：取子弹击退
+	if params.has("bullet_id"):
+		var bullet_id := str(params.get("bullet_id", ""))
+		if bullet_id != "":
+			var bullet_data := BulletDatabase.get_bullet(bullet_id)
+			if bullet_data:
+				return max(0.0, float(bullet_data.knockback_force))
+	
+	return 0.0
 
 ## 获取结算类型的显示文字
 func _get_calculation_type_text(calc_type: WeaponData.CalculationType) -> String:
