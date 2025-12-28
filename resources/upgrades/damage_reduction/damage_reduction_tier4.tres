@@ -13,7 +13,7 @@ damage_reduction = 20.0
 [resource]
 script = ExtResource("1_kq7w8")
 upgrade_type = 5
-name = "防御力+2"
+name = "防御力+20"
 description = "增加20点防御力"
 cost = 24
 icon_path = "res://assets/upgrades/up-defense.png"
