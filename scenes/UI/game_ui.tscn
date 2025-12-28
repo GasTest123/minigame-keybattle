@@ -564,7 +564,7 @@ offset_right = 134.0
 offset_bottom = 17.0
 theme_override_fonts/font = ExtResource("6_jqo5s")
 theme_override_font_sizes/font_size = 28
-text = "12分14秒23"
+text = "00分00秒00"
 
 [node name="newRecordSign" type="RichTextLabel" parent="timing/timingText"]
 layout_mode = 1
