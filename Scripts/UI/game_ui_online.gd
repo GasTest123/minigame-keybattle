@@ -7,6 +7,8 @@ extends CanvasLayer
 const KEY_NORMAL_TEX: Texture2D = preload("res://assets/items/nkey.png")
 const KEY_MASTER_TEX: Texture2D = preload("res://assets/items/mkey.png")
 const HP_FILL_STYLE: StyleBox = preload("res://scenes/UI/class_state_bar_fill.tres")
+const WARNING_UI_SCENE: PackedScene = preload("res://scenes/UI/warning_ui.tscn")
+const BOSS_HP_BAR_SCENE: PackedScene = preload("res://scenes/UI/components/BOSS_HPbar.tscn")
 
 # ===== 玩家条目尺寸（统一在这里调）=====
 const PLAYER_ENTRY_WIDTH: int = 510
@@ -26,6 +28,7 @@ const HP_BG_SKEW_X: float = 0.4
 @onready var wave_label: Label = %WaveLabel
 @onready var skill_icon: Control = %SkillIcon
 @onready var dash_ui: Control = %Dash_ui
+@onready var boss_bar_container: VBoxContainer = null  # 动态创建/复用：BOSSbar_root/VBoxContainer
 
 # 玩家信息项场景（动态创建）
 var player_info_items: Dictionary = {}  # peer_id -> Control
@@ -42,9 +45,18 @@ var _role_hint_panel: PanelContainer = null
 # Impostor 叛变提示框（屏幕下方）
 var _betrayal_hint_panel: PanelContainer = null
 
+# 波次开始大提示（复用单机版 WarningUi）
+var _warning_ui: Control = null
+var _warning_animation: AnimationPlayer = null
+
 # 更新间隔
 var _update_timer: float = 0.0
 const UPDATE_INTERVAL: float = 0.1  # 每0.1秒更新一次
+
+# ===== BOSS 血条管理（联网版）=====
+var _boss_bars_by_enemy: Dictionary = {}  # enemy_instance_id -> BossHPBar
+var _boss_scan_timer: float = 0.0
+const BOSS_SCAN_INTERVAL: float = 0.2
 
 # 初始化完成标志
 var _initialized: bool = false
@@ -83,6 +95,12 @@ func _ready() -> void:
 	
 	# 创建叛变提示框
 	_create_betrayal_hint_panel()
+
+	# 创建/挂载波次开始提示 UI（与单机版一致的 wave_begin 动画）
+	_setup_warning_ui()
+
+	# 创建/复用 BOSS 血条容器（联网版场景默认没有放节点）
+	_setup_boss_bar_ui()
 	
 	# 连接叛变信号
 	NetworkPlayerManager.impostor_betrayal_triggered.connect(_on_impostor_betrayed)
@@ -105,6 +123,39 @@ func _ready() -> void:
 	_setup_wave_display()
 	
 	_initialized = true
+
+
+## 创建/挂载波次开始提示 UI（复用 scenes/UI/warning_ui.tscn）
+func _setup_warning_ui() -> void:
+	# 如果场景里已存在同名节点（未来可能直接放进 tscn），优先复用
+	var existing := get_node_or_null("WarningUi") as Control
+	if existing:
+		_warning_ui = existing
+	else:
+		if not WARNING_UI_SCENE:
+			return
+		_warning_ui = WARNING_UI_SCENE.instantiate() as Control
+		if not _warning_ui:
+			return
+		_warning_ui.name = "WarningUi"
+		add_child(_warning_ui)
+	
+	# 确保不抢鼠标/不被暂停影响
+	_warning_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_warning_ui.process_mode = Node.PROCESS_MODE_ALWAYS
+	_warning_ui.z_index = 200
+	_warning_ui.z_as_relative = false
+	
+	_warning_animation = _warning_ui.get_node_or_null("AnimationPlayer") as AnimationPlayer
+	if _warning_animation:
+		_warning_animation.process_mode = Node.PROCESS_MODE_ALWAYS
+
+
+## 播放波次开始警告动画（与单机版 game_ui.gd 保持一致）
+func _play_wave_begin_animation() -> void:
+	if _warning_animation and is_instance_valid(_warning_animation):
+		_warning_animation.stop()
+		_warning_animation.play("wave_begin")
 
 
 ## 同步左上角面板尺寸：宽度跟随条目宽度，高度跟随当前玩家数量（避免裁切导致“看起来没变化”）
@@ -136,6 +187,125 @@ func _process(delta: float) -> void:
 		_update_role_hint()  # 定期更新角色提示
 		_update_betrayal_hint()  # 定期更新叛变提示
 		_update_wave_display()  # 更新波次显示
+
+	# BOSS 血条：不需要每 0.1s 扫一次，单独节流
+	_boss_scan_timer += delta
+	if _boss_scan_timer >= BOSS_SCAN_INTERVAL:
+		_boss_scan_timer = 0.0
+		_scan_and_update_boss_bars()
+
+
+## 创建/复用 BOSS 血条容器（与单机版节点结构一致：BOSSbar_root/VBoxContainer）
+func _setup_boss_bar_ui() -> void:
+	# 优先复用场景中已有节点（如果未来直接放进 tscn）
+	var existing_root := get_node_or_null("BOSSbar_root") as Control
+	if not existing_root:
+		existing_root = Control.new()
+		existing_root.name = "BOSSbar_root"
+		add_child(existing_root)
+		
+		# 位置/锚点：屏幕顶部居中；显式给足尺寸，避免动态创建时“看不见/0 尺寸”
+		existing_root.set_anchors_preset(Control.PRESET_CENTER_TOP)
+		existing_root.anchor_left = 0.5
+		existing_root.anchor_right = 0.5
+		existing_root.anchor_top = 0.0
+		existing_root.anchor_bottom = 0.0
+		# 宽度 600，高度 120
+		existing_root.offset_left = -300.0
+		existing_root.offset_right = 300.0
+		existing_root.offset_top = 90.0
+		existing_root.offset_bottom = 210.0
+		existing_root.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		existing_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	var vb := existing_root.get_node_or_null("VBoxContainer") as VBoxContainer
+	if not vb:
+		vb = VBoxContainer.new()
+		vb.name = "VBoxContainer"
+		existing_root.add_child(vb)
+		# 让容器铺满父节点，避免因为默认 0/40 尺寸导致子节点被挤没
+		vb.set_anchors_preset(Control.PRESET_FULL_RECT)
+		vb.offset_left = 0.0
+		vb.offset_top = 0.0
+		vb.offset_right = 0.0
+		vb.offset_bottom = 0.0
+		vb.add_theme_constant_override("separation", 10)
+	
+	boss_bar_container = vb
+
+
+## 扫描场景中的敌人实例，发现 BOSS 则创建血条；死亡/销毁则自动清理
+func _scan_and_update_boss_bars() -> void:
+	if not boss_bar_container or not is_instance_valid(boss_bar_container):
+		return
+	if not BOSS_HP_BAR_SCENE:
+		return
+	
+	# 清理无效引用
+	var to_erase: Array[int] = []
+	for k in _boss_bars_by_enemy.keys():
+		var bar = _boss_bars_by_enemy.get(k)
+		if not bar or not is_instance_valid(bar):
+			to_erase.append(int(k))
+	for k in to_erase:
+		_boss_bars_by_enemy.erase(k)
+	
+	# 发现新的 Boss
+	var enemies: Array = get_tree().get_nodes_in_group("enemy")
+	for e in enemies:
+		if not e or not is_instance_valid(e):
+			continue
+		# 兼容：Enemy / EnemyOnline
+		if not ("enemy_id" in e):
+			continue
+		var eid := str(e.enemy_id)
+		if eid.is_empty():
+			continue
+		if not BossHPBar.is_boss_enemy(eid):
+			continue
+		
+		var inst_id := int(e.get_instance_id())
+		if _boss_bars_by_enemy.has(inst_id):
+			continue
+		
+		_create_boss_hp_bar(e, eid)
+
+
+## 创建 BOSS 血条（复用 BossHPBar 脚本；现在支持 EnemyOnline）
+func _create_boss_hp_bar(enemy: Node, enemy_id: String) -> void:
+	if not boss_bar_container:
+		return
+	var boss_bar := BOSS_HP_BAR_SCENE.instantiate()
+	if not boss_bar:
+		return
+	boss_bar_container.add_child(boss_bar)
+	
+	# 连接自清理回调，避免字典残留
+	var inst_id := int(enemy.get_instance_id())
+	if boss_bar.has_signal("enemy_died"):
+		boss_bar.enemy_died.connect(_on_boss_bar_enemy_died.bind(inst_id))
+	
+	# 绑定敌人
+	if boss_bar.has_method("set_enemy"):
+		boss_bar.set_enemy(enemy, enemy_id)
+	
+	_boss_bars_by_enemy[inst_id] = boss_bar
+	print("[GameUIOnline] 创建 BOSS 血条: ", enemy_id)
+
+
+func _on_boss_bar_enemy_died(_bar: Node, enemy_instance_id: int) -> void:
+	if _boss_bars_by_enemy.has(enemy_instance_id):
+		_boss_bars_by_enemy.erase(enemy_instance_id)
+
+
+func _exit_tree() -> void:
+	# 断开可能的信号连接，清空引用（避免切场景时残留）
+	for k in _boss_bars_by_enemy.keys():
+		var bar = _boss_bars_by_enemy.get(k)
+		if bar and is_instance_valid(bar) and bar.has_signal("enemy_died"):
+			if bar.enemy_died.is_connected(_on_boss_bar_enemy_died):
+				bar.enemy_died.disconnect(_on_boss_bar_enemy_died)
+	_boss_bars_by_enemy.clear()
 
 
 ## 初始化玩家列表
@@ -686,6 +856,7 @@ func _find_wave_manager_periodically() -> void:
 ## 波次开始回调
 func _on_wave_started(_wave_number: int) -> void:
 	_update_wave_display()
+	_play_wave_begin_animation()
 
 
 ## 波次结束回调

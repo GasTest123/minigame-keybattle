@@ -229,9 +229,6 @@ func _apply_enemy_data() -> void:
 	if enemy_data == null:
 		return
 	
-	# 设置敌人类型ID
-	enemy_id = enemy_data.id
-	
 	# 应用属性（服务器端设置，客户端从同步数据读取）
 	if NetworkManager.is_server():
 		max_enemyHP = enemy_data.max_hp

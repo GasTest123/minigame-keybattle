@@ -16,7 +16,9 @@ const BOSS_ENEMY_IDS = ["ent", "monitor"]
 @onready var progress_bar: ProgressBar = $Control/partrit/ProgressBar
 
 ## 跟踪的敌人引用
-var tracked_enemy: Enemy = null
+## 注意：离线版敌人是 `Enemy`，联网版敌人是 `EnemyOnline`；
+## 为了复用同一套 UI 组件，这里不强绑定具体脚本类型。
+var tracked_enemy: Node = null
 var enemy_id: String = ""
 
 ## 信号：敌人死亡时发出
@@ -27,7 +29,7 @@ func _ready() -> void:
 	visible = false
 
 ## 设置跟踪的敌人
-func set_enemy(enemy: Enemy, id: String) -> void:
+func set_enemy(enemy: Node, id: String) -> void:
 	tracked_enemy = enemy
 	enemy_id = id
 	
@@ -67,8 +69,15 @@ func _update_hp_display() -> void:
 	if not progress_bar or not tracked_enemy:
 		return
 	
-	progress_bar.max_value = tracked_enemy.max_enemyHP
-	progress_bar.value = tracked_enemy.enemyHP
+	# 兼容：Enemy / EnemyOnline
+	var max_hp := 1
+	var hp := 0
+	if "max_enemyHP" in tracked_enemy:
+		max_hp = int(tracked_enemy.max_enemyHP)
+	if "enemyHP" in tracked_enemy:
+		hp = int(tracked_enemy.enemyHP)
+	progress_bar.max_value = max(1, max_hp)
+	progress_bar.value = clamp(hp, 0, progress_bar.max_value)
 
 ## 每帧更新血量（因为敌人没有血量变化信号）
 func _process(_delta: float) -> void:
@@ -80,7 +89,7 @@ func _process(_delta: float) -> void:
 	_update_hp_display()
 
 ## 敌人死亡回调
-func _on_enemy_killed(_enemy_ref: Enemy) -> void:
+func _on_enemy_killed(_enemy_ref: Node) -> void:
 	_cleanup()
 
 ## 清理并通知父节点
@@ -92,4 +101,3 @@ func _cleanup() -> void:
 ## 静态方法：判断敌人是否需要显示 BOSS 血条
 static func is_boss_enemy(id: String) -> bool:
 	return id in BOSS_ENEMY_IDS
-
