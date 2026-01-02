@@ -9,6 +9,7 @@ class_name UpgradeShop
 @onready var refresh_button: TextureButton = %RefreshButton
 @onready var close_button: TextureButton = %CloseButton
 @onready var refresh_label: RichTextLabel = $RefreshSection/RefreshButton/refreshLabel
+@onready var close_button_label: Label = $BottomSection/CloseButton/Label
 
 ## 新版 UI 节点引用
 @onready var player_portrait: TextureRect = %PlayerPortrait
@@ -48,12 +49,94 @@ var _shop_weapons: Array[BaseWeapon] = []
 var _currently_hovered_upgrade: UpgradeData = null
 var _hovered_option_ui: UpgradeOption = null
 
+## ===== 联网模式：待处理的购买/刷新请求 =====
+var _pending_purchase_upgrade: UpgradeData = null
+var _pending_purchase_cost: int = 0
+var _pending_refresh: bool = false
+
+## ===== 服务器：商店倒计时显示（复用商店页面，隐藏全部内容）=====
+var _server_countdown_label: Label = null
+
+func _is_server_shop_mode() -> bool:
+	return GameMain.current_mode_id == "online" and NetworkManager.is_server()
+
+func _extract_int_from_text(text: String) -> int:
+	var digits := ""
+	for i in text.length():
+		var ch := text[i]
+		if ch >= "0" and ch <= "9":
+			digits += ch
+	if digits == "":
+		return -1
+	return int(digits)
+
+func _show_server_countdown_only() -> void:
+	# 隐藏商店所有交互/内容，只保留一个居中倒计时
+	if upgrade_container: upgrade_container.visible = false
+	if refresh_button: refresh_button.visible = false
+	if close_button: close_button.visible = false
+	if refresh_label: refresh_label.visible = false
+	if weapon_container: weapon_container.visible = false
+	if player_portrait: player_portrait.visible = false
+	if player_name_label: player_name_label.visible = false
+	
+	var hp_bar := get_node_or_null("TitleSection/HPBar") as Control
+	if hp_bar:
+		hp_bar.visible = false
+	var weapon_list_label := get_node_or_null("BottomSection/WeaponListLabel") as Control
+	if weapon_list_label:
+		weapon_list_label.visible = false
+	
+	if _server_countdown_label == null:
+		_server_countdown_label = Label.new()
+		_server_countdown_label.name = "ServerShopCountdownLabel"
+		_server_countdown_label.process_mode = Node.PROCESS_MODE_ALWAYS
+		_server_countdown_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_server_countdown_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_server_countdown_label.add_theme_font_size_override("font_size", 48)
+		_server_countdown_label.add_theme_color_override("font_color", Color(1, 1, 1))
+		_server_countdown_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.85))
+		_server_countdown_label.add_theme_constant_override("shadow_offset_x", 2)
+		_server_countdown_label.add_theme_constant_override("shadow_offset_y", 2)
+		_server_countdown_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_server_countdown_label)
+		
+		# 屏幕居中：用 CENTER anchor + offsets，避免位置跑偏
+		_server_countdown_label.set_anchors_preset(Control.PRESET_CENTER)
+		_server_countdown_label.offset_left = -320
+		_server_countdown_label.offset_top = -70
+		_server_countdown_label.offset_right = 320
+		_server_countdown_label.offset_bottom = 70
+	
+	_server_countdown_label.visible = true
+	_server_countdown_label.text = "商店倒计时：--"
+
 ## 信号
 signal upgrade_purchased(upgrade: UpgradeData)
 signal shop_closed()
 
 ## 升级选项预制（用于UI显示）
 var upgrade_option_scene = preload("res://scenes/UI/upgrade_option.tscn")
+
+## 获取本地玩家（兼容单机和联网模式）
+func _get_local_player() -> Node:
+	if GameMain.current_mode_id == "online":
+		return NetworkPlayerManager.local_player
+	else:
+		return get_tree().get_first_node_in_group("player")
+
+## 获取本地玩家的武器管理器（兼容单机和联网模式）
+func _get_local_weapons_manager() -> Node:
+	if GameMain.current_mode_id == "online":
+		var local_player = NetworkPlayerManager.local_player
+		if local_player:
+			return local_player.get_node_or_null("now_weapons")
+		return null
+	else:
+		var weapons_manager = get_tree().get_first_node_in_group("weapons_manager")
+		if not weapons_manager:
+			weapons_manager = get_tree().get_first_node_in_group("weapons")
+		return weapons_manager
 
 ## 计算带波次修正的价格
 ## 公式：最终价格 = floor(基础价格 + 波数 + (基础价格 × 0.1 × 波数))
@@ -195,9 +278,49 @@ func _cache_managers() -> void:
 	if not _cached_player:
 		_cached_player = tree.get_first_node_in_group("player")
 
+
+## 获取玩家当前钥匙数量（兼容单机和联网模式）
+func _get_player_gold() -> int:
+	if GameMain.current_mode_id == "online":
+		# 联网模式：从本地玩家获取
+		var local_player = NetworkPlayerManager.local_player
+		if local_player:
+			var gold = local_player.get("gold")
+			if gold != null:
+				return gold
+		return 0
+	else:
+		# 单机模式：从 GameMain 获取
+		return GameMain.gold
+
+
+## 扣除玩家钥匙（兼容单机和联网模式）
+func _remove_player_gold(amount: int) -> bool:
+	if GameMain.current_mode_id == "online":
+		# 联网模式：从本地玩家扣除
+		var local_player = NetworkPlayerManager.local_player
+		if local_player and local_player.gold >= amount:
+			local_player.gold -= amount
+			return true
+		return false
+	else:
+		# 单机模式：从 GameMain 扣除
+		return GameMain.remove_gold(amount)
+
+
 ## 打开商店
 func open_shop() -> void:
 	print("升级商店 open_shop() 被调用")
+	
+	# 在线模式：服务器端复用商店页面，但只显示倒计时
+	if _is_server_shop_mode():
+		process_mode = Node.PROCESS_MODE_ALWAYS
+		show()
+		visible = true
+		set_process(true)
+		set_process_input(false)
+		_show_server_countdown_only()
+		return
 	
 	# 确保所有@onready变量都已初始化
 	if not is_inside_tree():
@@ -236,6 +359,7 @@ func open_shop() -> void:
 	print("容器子节点数（生成前）: ", upgrade_container.get_child_count())
 	
 	# 生成初始升级选项（异步，需要等待）
+	# 注：Boss 玩家只会生成血量和移动速度相关的升级选项
 	await generate_upgrades()
 	
 	# 更新武器列表显示
@@ -244,12 +368,76 @@ func open_shop() -> void:
 	
 	print("升级商店已打开，选项数量: ", current_upgrades.size())
 
+## 检查本地玩家是否是 Boss
+func _is_local_player_boss() -> bool:
+	if GameMain.current_mode_id != "online":
+		return false
+
+	var local_player = NetworkPlayerManager.local_player
+	if not local_player:
+		return false
+
+	var role = local_player.get("player_role_id")
+	return role == NetworkPlayerManager.ROLE_BOSS
+
+## Boss 可购买的升级类型（对Boss有效的非武器类型）
+## Boss的冲刺攻击和技能攻击现已使用属性系统，支持异常效果触发
+const BOSS_ALLOWED_UPGRADE_TYPES := [
+	UpgradeData.UpgradeType.HP_MAX,           # HP上限
+	UpgradeData.UpgradeType.MOVE_SPEED,       # 移动速度
+	UpgradeData.UpgradeType.HEAL_HP,          # 恢复HP
+	UpgradeData.UpgradeType.DAMAGE_REDUCTION, # 防御力/减伤
+	UpgradeData.UpgradeType.LUCK,             # 幸运（影响商店品质）
+	UpgradeData.UpgradeType.KEY_PICKUP_RANGE, # 钥匙拾取范围
+	UpgradeData.UpgradeType.STATUS_CHANCE,    # 异常触发概率（影响冲刺减速、技能燃烧）
+	UpgradeData.UpgradeType.STATUS_DURATION,  # 异常持续时间
+	UpgradeData.UpgradeType.STATUS_EFFECT,    # 异常效果强度
+]
+
+## 检查升级类型是否对 Boss 可用
+func _is_upgrade_allowed_for_boss(upgrade_type: int) -> bool:
+	return upgrade_type in BOSS_ALLOWED_UPGRADE_TYPES
+
+## 检查当前玩家是否可以生成武器升级
+func _can_generate_weapon_upgrade() -> bool:
+	# Boss 玩家不能生成武器升级
+	if _is_local_player_boss():
+		return false
+	return true
+
 ## 关闭商店
 func close_shop() -> void:
 	_clear_weapon_signups()
 	_currently_hovered_upgrade = null
+	# 重置关闭按钮显示
+	if close_button_label:
+		close_button_label.text = "关闭"
+	if _server_countdown_label:
+		_server_countdown_label.visible = false
 	hide()
 	shop_closed.emit()
+
+## 设置关闭按钮启用状态（联网模式下始终禁用手动关闭）
+func set_close_button_enabled(enabled: bool) -> void:
+	# 联网模式下忽略此设置，始终不允许手动关闭
+	if GameMain.current_mode_id == "online":
+		return
+	if close_button:
+		close_button.disabled = not enabled
+
+## 更新关闭按钮文字（用于显示倒计时）
+func update_close_button_text(text: String) -> void:
+	# 服务器：把倒计时显示在屏幕中间（复用 shop 页面）
+	if _is_server_shop_mode():
+		_show_server_countdown_only()
+		var n := _extract_int_from_text(text)
+		if n >= 0:
+			_server_countdown_label.text = "商店倒计时：%d" % n
+		else:
+			_server_countdown_label.text = text
+		return
+	if close_button_label:
+		close_button_label.text = text
 
 ## 生成升级选项（4个）
 ## 优化版：复用现有节点，消除闪烁
@@ -258,10 +446,19 @@ func close_shop() -> void:
 ## 2. 更新数据，将锁定选项恢复，并生成新选项填补空位
 ## 3. 复用UI节点，只更新数据，避免 queue_free 造成的空帧闪烁
 ## 4. 对非锁定选项，设置 scale.x=0 后更新数据，再播放翻入动画（Flip In）
+var _is_generating: bool = false  # 防止并发调用
 func generate_upgrades() -> void:
+	# 防止并发调用
+	if _is_generating:
+		return
+	_is_generating = true
+
 	# 选项会刷新/复用，先清空当前高亮，避免残留
 	_clear_weapon_signups()
 	_currently_hovered_upgrade = null
+
+	# 等待一帧确保 queue_free() 的节点被完全删除
+	await get_tree().process_frame
 
 	# 1. 播放翻出动画（只对非锁定的选项）
 	# 锁定的选项保持原样，非锁定的翻出并隐藏（scale.x -> 0）
@@ -295,6 +492,9 @@ func generate_upgrades() -> void:
 
 	# --- 保底逻辑检查：确保至少有1个属性和1个武器（如果可能） ---
 	# 仅在全刷新时执行，局部补货不执行
+	# Boss 玩家跳过武器保底检查
+	var can_weapon = _can_generate_weapon_upgrade()
+	
 	# 统计现有数量（包括锁定和新生成的）
 	var weapon_count = 0
 	var attribute_count = 0
@@ -322,7 +522,8 @@ func generate_upgrades() -> void:
 	
 	# 如果全是属性（且有非锁定槽位，且允许生成武器），强制将一个非锁定槽位改为武器
 	# 注意：如果已满6武器且满级，可能无法生成武器，此时跳过
-	elif attribute_count == SHOP_SLOTS and non_locked_indices.size() > 0:
+	# Boss 玩家不触发武器保底
+	elif attribute_count == SHOP_SLOTS and non_locked_indices.size() > 0 and can_weapon:
 		# 尝试生成一个武器
 		var dummy_salt = randi()
 		var new_weapon = _generate_weapon_upgrade(new_upgrades_list, dummy_salt)
@@ -395,7 +596,8 @@ func generate_upgrades() -> void:
 			var delay = i * FLIP_ANIMATION_DELAY
 			if option_ui.has_method("play_flip_in_animation"):
 				option_ui.play_flip_in_animation(delay)
-	
+
+	_is_generating = false
 	print("[UpgradeShop] 升级选项生成完成 (优化模式), 数量: %d" % SHOP_SLOTS)
 
 ## 创建升级选项UI实例（辅助函数，仅用于补充节点）
@@ -510,37 +712,93 @@ func _on_upgrade_purchased(upgrade: UpgradeData) -> void:
 		# 兼容性保底：如果 current_price 未设置，才实时计算
 		adjusted_cost = _calculate_cost_instance(upgrade.actual_cost)
 	
-	if GameMain.gold < adjusted_cost:
-		print("钥匙不足！需要 %d，当前 %d" % [adjusted_cost, GameMain.gold])
+	# 联网模式：发送购买请求到服务器
+	if GameMain.current_mode_id == "online":
+		_request_purchase_online(upgrade, adjusted_cost)
 		return
 	
-	# 扣除钥匙（使用修正后的价格）
-	GameMain.remove_gold(adjusted_cost)
+	# 单机模式：直接处理
+	_process_purchase_locally(upgrade, adjusted_cost)
+
+
+## 联网模式：发送购买请求到服务器
+func _request_purchase_online(upgrade: UpgradeData, cost: int) -> void:
+	# 客户端先检查钥匙是否足够（仅用于 UI 反馈，服务器会再次验证）
+	var player_gold = _get_player_gold()
+	if player_gold < cost:
+		print("[UpgradeShop] 客户端检查: 钥匙不足！需要 %d，当前 %d" % [cost, player_gold])
+		return
 	
-	# 更新刷新按钮状态（钥匙变化后，通过信号自动处理，这里只需更新显示）
-	_update_refresh_cost_display()
+	# 保存待处理的购买信息
+	_pending_purchase_upgrade = upgrade
+	_pending_purchase_cost = cost
 	
-	print("[UpgradeShop] 购买升级: %s，消耗 %d 钥匙（基础价格 %d）" % [upgrade.name, adjusted_cost, upgrade.actual_cost])
+	# 准备发送给服务器的数据
+	var weapon_id = upgrade.weapon_id if upgrade.weapon_id else ""
+	var custom_value = upgrade.custom_value if upgrade.custom_value else 0.0
+	var stats_data = {}
+	if upgrade.stats_modifier:
+		# 使用 CombatStats 的实际属性名
+		stats_data = {
+			"max_hp": upgrade.stats_modifier.max_hp,
+			"defense": upgrade.stats_modifier.defense,
+			"speed": upgrade.stats_modifier.speed,
+			"crit_chance": upgrade.stats_modifier.crit_chance,
+			"crit_damage": upgrade.stats_modifier.crit_damage,
+			"key_pickup_range_mult": upgrade.stats_modifier.key_pickup_range_mult,
+			"global_damage_add": upgrade.stats_modifier.global_damage_add,
+			"global_damage_mult": upgrade.stats_modifier.global_damage_mult,
+			"global_attack_speed_add": upgrade.stats_modifier.global_attack_speed_add,
+			"global_attack_speed_mult": upgrade.stats_modifier.global_attack_speed_mult,
+		}
 	
-	# 移除锁定状态（如果该升级被锁定）
-	for position_index in locked_upgrades.keys():
-		var locked_upgrade = locked_upgrades[position_index]
-		if _is_same_upgrade(locked_upgrade, upgrade):
-			locked_upgrades.erase(position_index)
-			print("[UpgradeShop] 已购买的升级从锁定列表中移除: %s" % upgrade.name)
-			break
+	print("[UpgradeShop] 发送购买请求: %s, cost=%d" % [upgrade.name, cost])
 	
-	# 应用升级效果（武器相关的是异步的，需要等待）
-	if upgrade.upgrade_type == UpgradeData.UpgradeType.NEW_WEAPON or upgrade.upgrade_type == UpgradeData.UpgradeType.WEAPON_LEVEL_UP:
-		await UpgradeManager.apply_upgrade(upgrade, get_tree())
-		# 等待一帧确保武器已完全添加到场景树
-		await get_tree().process_frame
-		_update_weapon_list()
+	# 发送 RPC 请求到服务器
+	NetworkPlayerManager.rpc_id(1, "rpc_request_purchase", 
+		upgrade.upgrade_type, upgrade.name, cost, weapon_id, custom_value, stats_data)
+
+
+## 联网模式：服务器购买结果回调
+func on_purchase_result(success: bool, message: String) -> void:
+	print("[UpgradeShop] 收到购买结果: success=%s, message=%s" % [success, message])
+	
+	if not _pending_purchase_upgrade:
+		print("[UpgradeShop] 警告: 没有待处理的购买请求")
+		return
+	
+	var upgrade = _pending_purchase_upgrade
+	var cost = _pending_purchase_cost
+	_pending_purchase_upgrade = null
+	_pending_purchase_cost = 0
+	
+	if success:
+		# 购买成功：更新 UI（服务器已扣除钥匙并应用效果）
+		_update_refresh_cost_display()
+		print("[UpgradeShop] 购买成功: %s，消耗 %d 钥匙" % [upgrade.name, cost])
+		
+		# 移除锁定状态
+		for position_index in locked_upgrades.keys():
+			var locked_upgrade = locked_upgrades[position_index]
+			if _is_same_upgrade(locked_upgrade, upgrade):
+				locked_upgrades.erase(position_index)
+				break
+		
+		# 武器升级需要刷新武器列表
+		if upgrade.upgrade_type == UpgradeData.UpgradeType.NEW_WEAPON or upgrade.upgrade_type == UpgradeData.UpgradeType.WEAPON_LEVEL_UP:
+			await get_tree().process_frame
+			_update_weapon_list()
+		
+		upgrade_purchased.emit(upgrade)
+		
+		# 刷新被购买的格子
+		await _refresh_purchased_slot(upgrade)
 	else:
-		UpgradeManager.apply_upgrade(upgrade, get_tree())
-	
-	upgrade_purchased.emit(upgrade)
-	
+		print("[UpgradeShop] 购买失败: %s" % message)
+
+
+## 刷新被购买的格子
+func _refresh_purchased_slot(upgrade: UpgradeData) -> void:
 	# 找到被购买选项的UI节点和位置
 	var purchased_option: UpgradeOption = null
 	var purchased_index: int = -1
@@ -555,47 +813,111 @@ func _on_upgrade_purchased(upgrade: UpgradeData) -> void:
 	
 	# 局部刷新逻辑：只针对被购买的那个格子
 	if purchased_option:
-		# 1. 翻出动画（只针对这一个，其他不动）
 		if purchased_option.has_method("play_flip_out_animation"):
 			await purchased_option.play_flip_out_animation().finished
 		
-		# 2. 从 current_upgrades 移除旧数据
 		if purchased_index >= 0 and purchased_index < current_upgrades.size():
-			# 3. 生成新数据
-			# 临时将旧数据置空，防止 _generate_single_upgrade 认为它还在
 			current_upgrades[purchased_index] = null
-			
 			var new_upgrade = _generate_single_upgrade(current_upgrades)
 			
-			# 4. 更新数据到现有节点（复用节点）
 			if new_upgrade:
 				current_upgrades[purchased_index] = new_upgrade
 				purchased_option.set_upgrade_data(new_upgrade)
-				purchased_option.position_index = purchased_index # 保持索引
-				purchased_option.set_lock_state(false) # 新生成的默认不锁定
-				
-				# 显式恢复可见
+				purchased_option.position_index = purchased_index
+				purchased_option.set_lock_state(false)
 				purchased_option.visible = true
 				
-				# 5. 翻入动画
 				if purchased_option.has_method("play_flip_in_animation"):
 					purchased_option.play_flip_in_animation(0.0)
 			else:
-				print("警告：购买后无法生成新升级")
-				# 隐藏节点，避免显示旧数据
 				purchased_option.visible = false
-
-	# 如果购买前鼠标正停在某个选项上，武器列表重建后需要恢复高亮
+	
 	if _currently_hovered_upgrade:
 		_apply_weapon_signups_for_upgrade(_currently_hovered_upgrade)
 
-## 刷新按钮
-func _on_refresh_button_pressed() -> void:
-	if GameMain.gold < refresh_cost:
-		print("钥匙不足！")
+
+## 单机模式：本地处理购买
+func _process_purchase_locally(upgrade: UpgradeData, adjusted_cost: int) -> void:
+	# 检查钥匙是否足够
+	var player_gold = _get_player_gold()
+	if player_gold < adjusted_cost:
+		print("钥匙不足！需要 %d，当前 %d" % [adjusted_cost, player_gold])
 		return
 	
-	GameMain.remove_gold(refresh_cost)
+	# 扣除钥匙
+	_remove_player_gold(adjusted_cost)
+	_update_refresh_cost_display()
+	
+	print("[UpgradeShop] 购买升级: %s，消耗 %d 钥匙（基础价格 %d）" % [upgrade.name, adjusted_cost, upgrade.actual_cost])
+	
+	# 移除锁定状态
+	for position_index in locked_upgrades.keys():
+		var locked_upgrade = locked_upgrades[position_index]
+		if _is_same_upgrade(locked_upgrade, upgrade):
+			locked_upgrades.erase(position_index)
+			print("[UpgradeShop] 已购买的升级从锁定列表中移除: %s" % upgrade.name)
+			break
+	
+	# 应用升级效果
+	if upgrade.upgrade_type == UpgradeData.UpgradeType.NEW_WEAPON or upgrade.upgrade_type == UpgradeData.UpgradeType.WEAPON_LEVEL_UP:
+		await UpgradeManager.apply_upgrade(upgrade, get_tree())
+		await get_tree().process_frame
+		_update_weapon_list()
+	else:
+		UpgradeManager.apply_upgrade(upgrade, get_tree())
+	
+	upgrade_purchased.emit(upgrade)
+	
+	# 刷新被购买的格子
+	await _refresh_purchased_slot(upgrade)
+
+## 刷新按钮
+func _on_refresh_button_pressed() -> void:
+	var player_gold = _get_player_gold()
+	if player_gold < refresh_cost:
+		print("[UpgradeShop] 刷新失败: 钥匙不足！需要 %d，当前 %d" % [refresh_cost, player_gold])
+		return
+	
+	# 联网模式：发送刷新请求到服务器
+	if GameMain.current_mode_id == "online":
+		_request_refresh_online()
+		return
+	
+	# 单机模式：直接处理
+	_process_refresh_locally()
+
+
+## 联网模式：发送刷新请求到服务器
+func _request_refresh_online() -> void:
+	_pending_refresh = true
+	print("[UpgradeShop] 发送刷新请求: cost=%d" % refresh_cost)
+	NetworkPlayerManager.rpc_id(1, "rpc_request_shop_refresh", refresh_cost)
+
+
+## 联网模式：服务器刷新结果回调
+func on_refresh_result(success: bool, message: String) -> void:
+	print("[UpgradeShop] 收到刷新结果: success=%s, message=%s" % [success, message])
+	
+	if not _pending_refresh:
+		print("[UpgradeShop] 警告: 没有待处理的刷新请求")
+		return
+	
+	_pending_refresh = false
+	
+	if success:
+		# 刷新成功：更新 UI（服务器已扣除钥匙）
+		refresh_cost *= 2  # 下次刷新费用x2
+		_update_refresh_cost_display()
+		_clear_weapon_signups()
+		_currently_hovered_upgrade = null
+		await generate_upgrades()
+	else:
+		print("[UpgradeShop] 刷新失败: %s" % message)
+
+
+## 单机模式：本地处理刷新
+func _process_refresh_locally() -> void:
+	_remove_player_gold(refresh_cost)
 	refresh_cost *= 2  # 下次刷新费用x2
 	_update_refresh_cost_display()
 	_clear_weapon_signups()
@@ -604,15 +926,17 @@ func _on_refresh_button_pressed() -> void:
 
 ## 关闭按钮
 func _on_close_button_pressed() -> void:
+	# 联网模式：不允许手动关闭，必须等待倒计时结束
+	if GameMain.current_mode_id == "online":
+		print("[UpgradeShop] 联网模式下不允许手动关闭商店，请等待倒计时结束")
+		return
 	close_shop()
 
 ## 监听钥匙变化
 func _on_gold_changed(_new_amount: int, _change: int) -> void:
 	_update_refresh_cost_display()
-	# 也可以在这里触发子项的购买按钮状态更新，如果需要的话
-	# for child in upgrade_container.get_children():
-	# 	if child is UpgradeOption:
-	# 		child._update_buy_button() 
+	_update_all_buy_buttons()
+
 
 ## 更新刷新费用显示
 func _update_refresh_cost_display() -> void:
@@ -620,27 +944,56 @@ func _update_refresh_cost_display() -> void:
 	if refresh_label:
 		refresh_label.text = "刷新  [img=20]res://assets/items/bbc-nkey.png[/img] %d" % refresh_cost
 	
-	# 检查钥匙是否足够刷新，不足时禁用按钮
+	# 检查钥匙是否足够刷新，不足时禁用按钮（兼容单机和联网模式）
 	if refresh_button:
-		var can_afford = GameMain.gold >= refresh_cost
+		var player_gold = _get_player_gold()
+		var can_afford = player_gold >= refresh_cost
 		refresh_button.disabled = not can_afford
+	
+	# 更新所有升级选项的购买按钮状态
+	_update_all_buy_buttons()
+
+
+## 更新所有升级选项的购买按钮状态
+func _update_all_buy_buttons() -> void:
+	if not upgrade_container:
+		return
+	for child in upgrade_container.get_children():
+		if child is UpgradeOption:
+			child._update_buy_button()
 
 ## 初始化玩家信息显示
 func _initialize_player_info() -> void:
-	# 显示已选择的职业头像
-	var class_id = GameMain.selected_class_id
+	# 获取职业ID（联网模式从 local_player 获取，单机模式从 GameMain 获取）
+	var class_id = ""
+	var player_display_name = ""
+	
+	if GameMain.current_mode_id == "online" and NetworkPlayerManager.local_player:
+		# 联网模式：从本地玩家获取职业ID和显示名称
+		class_id = NetworkPlayerManager.local_player.player_class_id
+		player_display_name = NetworkPlayerManager.local_player.display_name
+	else:
+		# 单机模式：从 GameMain 获取
+		class_id = GameMain.selected_class_id
+	
+	# 显示职业头像
 	if class_id != "" and player_portrait:
 		var class_data = ClassDatabase.get_class_data(class_id)
 		if class_data and class_data.portrait:
 			player_portrait.texture = class_data.portrait
 	
-	# 显示玩家名字（从存档读取）
+	# 显示玩家名字
 	if player_name_label:
-		var saved_name = SaveManager.get_player_name()
-		if saved_name != "":
-			player_name_label.text = saved_name
+		if player_display_name != "":
+			# 联网模式：使用玩家显示名称
+			player_name_label.text = player_display_name
 		else:
-			player_name_label.text = "玩家"
+			# 单机模式：从存档读取
+			var saved_name = SaveManager.get_player_name()
+			if saved_name != "":
+				player_name_label.text = saved_name
+			else:
+				player_name_label.text = "玩家"
 
 ## 更新武器列表显示（使用 WeaponCompact 组件）
 func _update_weapon_list() -> void:
@@ -657,20 +1010,26 @@ func _update_weapon_list() -> void:
 	_weapon_compacts.clear()
 	_shop_weapons.clear()
 	
-	# 使用缓存的 WeaponsManager
-	if not _cached_weapons_manager:
-		# 尝试重新查找
-		_cached_weapons_manager = get_tree().get_first_node_in_group("weapons_manager")
+	# 获取武器管理器（联网模式使用本地玩家的武器管理器）
+	var weapons_manager = _get_local_weapons_manager()
+	if not weapons_manager:
+		# 回退到缓存的方式
 		if not _cached_weapons_manager:
-			_cached_weapons_manager = get_tree().get_first_node_in_group("weapons")
+			_cached_weapons_manager = get_tree().get_first_node_in_group("weapons_manager")
+			if not _cached_weapons_manager:
+				_cached_weapons_manager = get_tree().get_first_node_in_group("weapons")
+		weapons_manager = _cached_weapons_manager
 	
-	if not _cached_weapons_manager:
+	if not weapons_manager:
 		print("[UpgradeShop] 无法找到武器管理器")
 		return
 	
+	# 更新缓存
+	_cached_weapons_manager = weapons_manager
+	
 	# 获取所有武器（按获得顺序）
 	# 注意：get_all_weapons() 返回的是未类型化 Array，需要转换为 Array[BaseWeapon]
-	var weapons_raw: Array = _cached_weapons_manager.get_all_weapons()
+	var weapons_raw: Array = weapons_manager.get_all_weapons()
 	var weapons: Array[BaseWeapon] = []
 	for w in weapons_raw:
 		if w is BaseWeapon:
@@ -1075,12 +1434,18 @@ func _generate_single_upgrade(existing_upgrades: Array[UpgradeData]) -> UpgradeD
 	var current_wave = _get_current_wave()
 	rng.seed = hash(Time.get_ticks_msec() + current_wave + existing_upgrades.size())
 	
+	# Boss 玩家只能生成属性升级，不能生成武器
+	var can_weapon = _can_generate_weapon_upgrade()
+	
 	# 决定生成类型
 	var is_weapon = false
 	
 	# 移除旧的强制保底逻辑，回归纯随机（受基础概率限制）
 	# 只有在全刷新 generate_upgrades 中才进行整体平衡检查
-	is_weapon = rng.randf() < WEAPON_SPAWN_CHANCE
+	if can_weapon:
+		is_weapon = rng.randf() < WEAPON_SPAWN_CHANCE
+	else:
+		is_weapon = false  # Boss 玩家强制不生成武器
 	
 	var attempts = 0
 	var max_attempts = 50
@@ -1093,7 +1458,7 @@ func _generate_single_upgrade(existing_upgrades: Array[UpgradeData]) -> UpgradeD
 		
 		var upgrade: UpgradeData = null
 		
-		if is_weapon:
+		if is_weapon and can_weapon:
 			upgrade = _generate_weapon_upgrade(existing_upgrades, attempt_salt)
 		else:
 			# 获取当前波数和幸运值
@@ -1109,7 +1474,7 @@ func _generate_single_upgrade(existing_upgrades: Array[UpgradeData]) -> UpgradeD
 		
 		if upgrade == null:
 			# 如果生成失败，尝试切换类型
-			if is_weapon:
+			if is_weapon and can_weapon:
 				# 武器生成失败，尝试生成属性
 				var fallback_luck_value = _get_player_luck()
 				var fallback_quality = _get_quality_by_luck(fallback_luck_value, current_wave)
@@ -1117,8 +1482,8 @@ func _generate_single_upgrade(existing_upgrades: Array[UpgradeData]) -> UpgradeD
 				# 保底策略
 				if upgrade == null:
 					upgrade = _generate_attribute_upgrade(UpgradeData.Quality.WHITE, attempt_salt)
-			else:
-				# 属性生成失败，尝试生成武器
+			elif can_weapon:
+				# 属性生成失败，尝试生成武器（只有非Boss玩家可以）
 				upgrade = _generate_weapon_upgrade(existing_upgrades, attempt_salt)
 			
 			if upgrade == null:
@@ -1310,6 +1675,9 @@ func _generate_attribute_upgrade(quality: int, salt: int = 0) -> UpgradeData:
 	# 获取所有upgrade ID
 	var all_upgrade_ids = UpgradeDatabase.get_all_upgrade_ids()
 	
+	# Boss 玩家只能生成允许的升级类型
+	var is_boss = _is_local_player_boss()
+	
 	# 筛选出指定品质的upgrade，同时收集权重信息（跳过权重<=0的升级）
 	var quality_upgrades: Array[Dictionary] = []  # [{id: String, weight: int}]
 	var total_weight: int = 0
@@ -1317,6 +1685,10 @@ func _generate_attribute_upgrade(quality: int, salt: int = 0) -> UpgradeData:
 	for upgrade_id in all_upgrade_ids:
 		var base_upgrade_data = UpgradeDatabase.get_upgrade_data(upgrade_id)
 		if not base_upgrade_data or base_upgrade_data.quality != quality:
+			continue
+		
+		# Boss 玩家：检查升级类型是否允许
+		if is_boss and not _is_upgrade_allowed_for_boss(base_upgrade_data.upgrade_type):
 			continue
 		
 		# 检查权重：权重必须>0才会出现在商店中（0、负数都会被跳过）

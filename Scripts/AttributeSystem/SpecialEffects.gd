@@ -370,6 +370,14 @@ static func _apply_lifesteal(attacker_stats: CombatStats, target, params: Dictio
 	if not "now_hp" in attacker or not "max_hp" in attacker:
 		return false
 	
+	# 联网模式：通过 RPC 恢复血量，确保同步
+	if GameMain.current_mode_id == "online" and attacker.has_method("rpc_heal") and "peer_id" in attacker:
+		# 服务器通知客户端恢复血量
+		if NetworkManager.is_server():
+			attacker.rpc_id(attacker.peer_id, "rpc_heal", heal_amount)
+		return true
+
+	# 单机模式：直接修改
 	var old_hp = attacker.now_hp
 	attacker.now_hp = min(attacker.now_hp + heal_amount, attacker.max_hp)
 	var actual_heal = attacker.now_hp - old_hp
@@ -525,15 +533,15 @@ static func apply_dot_damage(target, tick_data: Dictionary) -> void:
 				target.enemyHP = 0
 				if not target.is_dead:
 					target.enemy_dead()
+
 	elif target.has_method("player_hurt"):
-		# 玩家DoT伤害
-		if "now_hp" in target:
-			target.now_hp -= damage
-			if target.now_hp < 0:
-				target.now_hp = 0
+		# 玩家DoT伤害 - 通过 player_hurt 处理，确保联网模式下正确同步
+		target.player_hurt(damage)
 		
 		# 显示DoT伤害数字（颜色与效果名称一致，字体大一倍）
-		if FloatingText:
+		# 注意：在联网模式下，player_hurt 会处理伤害文字显示，这里可能重复
+		# 但为了单机模式兼容，仍然保留
+		if FloatingText and GameMain.current_mode_id != "online":
 			FloatingText.create_floating_text(
 				target.global_position + Vector2(randf_range(-20, 20), -30),
 				"-" + str(damage),

@@ -1,0 +1,107 @@
+[gd_scene load_steps=13 format=3 uid="uid://cnjsx2cp2m44b"]
+
+[ext_resource type="Script" uid="uid://byw7t7i5d7b7g" path="res://Scripts/enemies/enemy_online.gd" id="1_gl7hk"]
+[ext_resource type="Shader" uid="uid://dsun82e56sau7" path="res://Shaders/flash.gdshader" id="3_vtn8e"]
+[ext_resource type="Texture2D" uid="uid://kjiuodwlmfxa" path="res://assets/enemy/enemy1-sheet.png" id="4_48g4c"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tjssy"]
+resource_local_to_scene = true
+shader = ExtResource("3_vtn8e")
+shader_parameter/flash_color = Color(1, 1, 1, 1)
+shader_parameter/flash_opacity = 0.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gl05p"]
+atlas = ExtResource("4_48g4c")
+region = Rect2(0, 0, 357, 240)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cwlon"]
+atlas = ExtResource("4_48g4c")
+region = Rect2(357, 0, 357, 240)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nbhyu"]
+atlas = ExtResource("4_48g4c")
+region = Rect2(714, 0, 357, 240)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_13gj6"]
+atlas = ExtResource("4_48g4c")
+region = Rect2(1071, 0, 357, 240)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4efjx"]
+atlas = ExtResource("4_48g4c")
+region = Rect2(1428, 0, 357, 240)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_cwlon"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gl05p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cwlon")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nbhyu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_13gj6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4efjx")
+}],
+"loop": true,
+"name": &"default",
+"speed": 8.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_tjssy"]
+radius = 110.05048
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_xgyy0"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:velocity")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath("AnimatedSprite2D:flip_h")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath(".:enemyHP")
+properties/3/spawn = true
+properties/3/replication_mode = 1
+properties/4/path = NodePath(".:max_enemyHP")
+properties/4/spawn = true
+properties/4/replication_mode = 1
+properties/5/path = NodePath(".:enemy_id")
+properties/5/spawn = true
+properties/5/replication_mode = 0
+properties/6/path = NodePath(".:is_last_enemy_in_wave")
+properties/6/spawn = true
+properties/6/replication_mode = 0
+properties/7/path = NodePath(".:current_wave_number")
+properties/7/spawn = true
+properties/7/replication_mode = 0
+properties/8/path = NodePath(".:is_dead")
+properties/8/spawn = true
+properties/8/replication_mode = 1
+
+[node name="enemy" type="CharacterBody2D" groups=["enemy"]]
+z_index = 8
+position = Vector2(22, 0)
+scale = Vector2(0.6, 0.6)
+collision_layer = 8
+collision_mask = 10
+script = ExtResource("1_gl7hk")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+material = SubResource("ShaderMaterial_tjssy")
+position = Vector2(-10, 0)
+sprite_frames = SubResource("SpriteFrames_cwlon")
+frame_progress = 0.01654145
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-23.333332, 10)
+shape = SubResource("CircleShape2D_tjssy")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_xgyy0")

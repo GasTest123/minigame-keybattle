@@ -72,6 +72,18 @@ var max_bounces: int = 3
 
 ## ========== 兼容旧版 ==========
 var weapon_data: WeaponData = null
+var is_visual_only: bool = false  # 客户端视觉子弹（碰撞时只消失，不处理伤害）
+var owner_peer_id: int = 0
+
+## 联网同步：每颗子弹的唯一实例 ID（由服务器生成并下发）
+var instance_id: String = ""
+## 联网同步：是否由服务器驱动轨迹（追踪/弹跳/波浪/螺旋等非直线子弹）
+var is_network_driven: bool = false
+## 客户端：服务器下发的目标状态（用于插值）
+var _net_target_pos: Vector2 = Vector2.ZERO
+var _net_target_rot: float = 0.0
+var _net_has_state: bool = false
+var _net_interp_speed: float = 18.0
 
 ## ========== 新版初始化方法 ==========
 
@@ -87,6 +99,9 @@ func start_with_config(config: Dictionary) -> void:
 	calculation_type = config.get("calculation_type", 0)
 	pierce_count = config.get("pierce_count", 0)
 	bullet_data = config.get("bullet_data", null)
+	owner_peer_id = config.get("owner_peer_id", 0)
+	instance_id = str(config.get("instance_id", ""))
+	is_network_driven = bool(config.get("is_network_driven", false))
 	
 	# 设置移动类型和参数
 	if bullet_data:
@@ -107,10 +122,18 @@ func start_with_config(config: Dictionary) -> void:
 		scale *= 1.2
 	
 	# 生命周期：在 _physics_process 中使用 _age 统一管理（避免大量 timer）
+	
+	# 客户端视觉子弹：禁用碰撞（由服务器决定何时销毁，并通过 despawn 同步）
+	if GameMain.current_mode_id == "online" and is_visual_only:
+		set_deferred("monitoring", false)
+		set_deferred("monitorable", false)
+		var cs = get_node_or_null("CollisionShape2D")
+		if cs:
+			cs.set_deferred("disabled", true)
 
 ## ========== 旧版初始化方法（兼容） ==========
 
-func start(pos: Vector2, _dir: Vector2, _speed: float, _hurt: int, _is_critical: bool = false, _player_stats: CombatStats = null, _weapon_data: WeaponData = null) -> void:
+func start(pos: Vector2, _dir: Vector2, _speed: float, _hurt: int, _is_critical: bool = false, _player_stats: CombatStats = null, _weapon_data: WeaponData = null, _owner_peer_id: int = 0) -> void:
 	global_position = pos
 	dir = _dir
 	speed = _speed
@@ -118,6 +141,7 @@ func start(pos: Vector2, _dir: Vector2, _speed: float, _hurt: int, _is_critical:
 	is_critical = _is_critical
 	player_stats = _player_stats
 	weapon_data = _weapon_data
+	owner_peer_id = _owner_peer_id
 	
 	movement_type = BulletData.MovementType.STRAIGHT
 	_velocity = dir * speed
@@ -162,7 +186,32 @@ func _physics_process(delta: float) -> void:
 	# 生命周期（统一用 age 计时，避免每颗子弹 create_timer）
 	_age += delta
 	if _age >= life_time:
+		# 联网模式：服务器权威子弹寿命结束，也要同步客户端移除（直线子弹同样需要）
+		if GameMain.current_mode_id == "online" and NetworkManager.is_server() and not is_visual_only:
+			if instance_id != "" and NetworkPlayerManager and NetworkPlayerManager.has_method("server_despawn_bullet"):
+				NetworkPlayerManager.server_despawn_bullet(instance_id)
 		queue_free()
+		return
+	
+	# 联网模式：视觉子弹仅展示
+	# - 非直线子弹（追踪/弹跳/波浪/螺旋）由服务器权威模拟并下发状态
+	# - 客户端只做插值跟随，避免本地寻敌/Time.get_ticks_msec() 等导致轨迹不一致
+	if GameMain.current_mode_id == "online" and is_visual_only and is_network_driven:
+		# 1. 处理动画播放
+		if bullet_data and bullet_data.animation_speed > 0:
+			_update_animation(delta)
+		
+		# 2. 自转（纯视觉）
+		if movement_params.has("self_rotation_speed"):
+			var sprite = get_node_or_null("Sprite2D")
+			if sprite:
+				sprite.rotation_degrees += movement_params["self_rotation_speed"] * delta
+		
+		# 3. 跟随服务器状态（插值）
+		if _net_has_state:
+			var t := clampf(_net_interp_speed * delta, 0.0, 1.0)
+			global_position = global_position.lerp(_net_target_pos, t)
+			rotation = lerp_angle(rotation, _net_target_rot, t)
 		return
 
 	# 1. 处理动画播放
@@ -196,6 +245,20 @@ func _physics_process(delta: float) -> void:
 ## 直线移动
 func _move_straight(delta: float) -> void:
 	global_position += _velocity * delta
+
+
+## 客户端：应用服务器同步的状态（由 NetworkPlayerManager 调用）
+func apply_network_state(pos: Vector2, rot: float) -> void:
+	_net_target_pos = pos
+	_net_target_rot = rot
+	_net_has_state = true
+
+
+func _exit_tree() -> void:
+	# 服务器：权威子弹退出树时，广播给客户端移除对应视觉子弹
+	if GameMain.current_mode_id == "online" and NetworkManager.is_server() and not is_visual_only:
+		if instance_id != "" and NetworkPlayerManager:
+			NetworkPlayerManager.server_notify_bullet_freed(instance_id)
 
 ## 追踪移动
 func _move_homing(delta: float) -> void:
@@ -357,48 +420,145 @@ func _setup_appearance() -> void:
 
 ## ========== 碰撞处理 ==========
 
-func _on_body_shape_entered(_body_rid: RID, body: Node2D, _body_shape_index: int, _local_shape_index: int) -> void:
-	if not body.is_in_group("enemy"):
-		return
-	
-	# 弹跳子弹碰到障碍物的处理
-	if movement_type == BulletData.MovementType.BOUNCE:
-		if body.is_in_group("wall") or body.is_in_group("obstacle"):
-			_handle_bounce()
+func _on_body_shape_entered(body_rid: RID, body: Node2D, body_shape_index: int, local_shape_index: int) -> void:
+	if GameMain.current_mode_id == "online":
+		_handle_collision_online(body)
+	else:
+		_handle_collision_offline(body)
+
+
+## 联网模式：使用 NetworkPlayerManager 统一处理碰撞
+func _handle_collision_online(body: Node2D) -> void:
+	var result = NetworkPlayerManager.handle_bullet_collision(owner_peer_id, body, hurt, is_critical, is_visual_only)
+
+	match result:
+		NetworkPlayerManager.BulletHitResult.IGNORE:
+			# 忽略碰撞，继续飞行
 			return
-	
-	# 穿透检查
-	if pierced_enemies.has(body):
+
+		NetworkPlayerManager.BulletHitResult.DESTROY:
+			# 销毁子弹（视觉效果或无效目标）
+			# 联网模式：服务器权威子弹销毁需要同步客户端移除（直线子弹同样需要）
+			if GameMain.current_mode_id == "online" and NetworkManager.is_server() and not is_visual_only:
+				if instance_id != "" and NetworkPlayerManager and NetworkPlayerManager.has_method("server_despawn_bullet"):
+					NetworkPlayerManager.server_despawn_bullet(instance_id)
+			queue_free()
+			return
+
+		NetworkPlayerManager.BulletHitResult.HIT_PLAYER:
+			# 命中玩家，伤害已处理，应用武器特效
+			_apply_weapon_effects(body)
+			if GameMain.current_mode_id == "online" and NetworkManager.is_server() and not is_visual_only:
+				if instance_id != "" and NetworkPlayerManager and NetworkPlayerManager.has_method("server_despawn_bullet"):
+					NetworkPlayerManager.server_despawn_bullet(instance_id)
+			queue_free()
+			return
+
+		NetworkPlayerManager.BulletHitResult.HIT_ENEMY:
+			# 命中敌人，处理伤害和特效
+			_deal_damage_to_enemy(body)
+			if GameMain.current_mode_id == "online" and NetworkManager.is_server() and not is_visual_only:
+				if instance_id != "" and NetworkPlayerManager and NetworkPlayerManager.has_method("server_despawn_bullet"):
+					NetworkPlayerManager.server_despawn_bullet(instance_id)
+			queue_free()
+			return
+
+	# 默认销毁
+	if GameMain.current_mode_id == "online" and NetworkManager.is_server() and not is_visual_only:
+		if instance_id != "" and NetworkPlayerManager and NetworkPlayerManager.has_method("server_despawn_bullet"):
+			NetworkPlayerManager.server_despawn_bullet(instance_id)
+	queue_free()
+
+
+## 单机模式：直接处理敌人碰撞
+func _handle_collision_offline(body: Node2D) -> void:
+	# 忽略玩家（单机模式下不应碰到玩家就消失）
+	if body.is_in_group("player"):
 		return
-	
-	# 播放击中特效
-	_play_hit_effect()
-	
-	# 造成伤害
-	if body.has_method("enemy_hurt"):
-		body.enemy_hurt(hurt, is_critical)
-	
-	# 应用击退效果
-	_apply_knockback(body)
-	
-	# 应用特殊效果（传参执行，无回调）
-	_apply_effects_to_target(body)
-	
-	# 弹跳子弹特殊处理：击中敌人后寻找下一个目标（不依赖 pierce_count）
-	if movement_type == BulletData.MovementType.BOUNCE:
-		pierced_enemies.append(body)
-		_handle_bounce_to_enemy()
+
+	if body.is_in_group("enemy"):
+		_deal_damage_to_enemy(body)
+
+	# 碰撞后销毁子弹
+	queue_free()
+
+
+## 处理敌人伤害
+func _deal_damage_to_enemy(enemy: Node2D) -> void:
+	if enemy.has_method("enemy_hurt"):
+		if GameMain.current_mode_id == "online":
+			enemy.enemy_hurt(hurt, is_critical, owner_peer_id)
+		else:
+			enemy.enemy_hurt(hurt, is_critical)
+
+	# 应用武器特效
+	_apply_weapon_effects(enemy)
+
+
+## 应用武器特效到目标（敌人或玩家）
+func _apply_weapon_effects(target: Node2D) -> void:
+	if not player_stats:
 		return
-	
-	# 穿透处理（非弹跳子弹）
-	if pierce_count > 0:
-		pierced_enemies.append(body)
-		pierce_count -= 1
-		return
-	
-	# 销毁子弹
-	if bullet_data == null or bullet_data.destroy_on_hit:
-		queue_free()
+
+	# 优先使用weapon_data中的特殊效果配置
+	var effect_configs: Array = []
+	if weapon_data and not weapon_data.special_effects.is_empty():
+		effect_configs = weapon_data.special_effects
+
+	# 应用每个效果
+	for effect_config in effect_configs:
+		if not effect_config is Dictionary:
+			continue
+
+		var effect_type = effect_config.get("type", "")
+		var effect_params = effect_config.get("params", {})
+
+		# 如果是吸血效果，需要传递伤害和攻击者
+		if effect_type == "lifesteal":
+			var attacker = NetworkPlayerManager.get_player_by_peer_id(owner_peer_id)
+			if not attacker:
+				attacker = get_tree().get_first_node_in_group("player")
+			effect_params["damage_dealt"] = hurt
+			effect_params["attacker"] = attacker
+
+		# 应用效果
+		SpecialEffects.try_apply_status_effect(player_stats, target, effect_type, effect_params)
+
+	# 如果没有weapon_data配置，使用旧的player_stats逻辑（兼容性）
+	if effect_configs.is_empty():
+		# 吸血效果
+		if player_stats.lifesteal_percent > 0:
+			var attacker = NetworkPlayerManager.get_player_by_peer_id(owner_peer_id)
+			if not attacker:
+				attacker = get_tree().get_first_node_in_group("player")
+			SpecialEffects.try_apply_status_effect(player_stats, null, "lifesteal", {
+				"attacker": attacker,
+				"damage_dealt": hurt,
+				"percent": player_stats.lifesteal_percent
+			})
+
+		# 状态效果（使用统一方法）
+		if player_stats.burn_chance > 0:
+			SpecialEffects.try_apply_status_effect(player_stats, target, "burn", {
+				"chance": player_stats.burn_chance,
+				"tick_interval": 1.0,
+				"damage": player_stats.burn_damage_per_second,
+				"duration": 3.0
+			})
+
+		if player_stats.freeze_chance > 0:
+			SpecialEffects.try_apply_status_effect(player_stats, target, "freeze", {
+				"chance": player_stats.freeze_chance,
+				"duration": 2.0
+			})
+
+		if player_stats.poison_chance > 0:
+			SpecialEffects.try_apply_status_effect(player_stats, target, "poison", {
+				"chance": player_stats.poison_chance,
+				"tick_interval": 1.0,
+				"damage": 5.0,
+				"duration": 5.0
+			})
 
 ## 播放击中特效
 func _play_hit_effect() -> void:

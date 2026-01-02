@@ -2,6 +2,7 @@ extends BaseSkillUI
 
 ## 职业技能图标UI组件
 ## 显示技能图标、名称和CD倒计时
+## 支持普通模式和联网模式
 
 @onready var skill_des_label: Label = $Skill_des
 
@@ -10,15 +11,53 @@ var player_ref: CharacterBody2D = null
 
 func _ready() -> void:
 	super._ready()  # 调用基类初始化
-	
-	# 等待场景加载完成
+	_try_init()
+
+
+## 尝试初始化（带重试）
+func _try_init() -> void:
 	await get_tree().create_timer(0.2).timeout
+	_find_player()
 	
-	# 获取玩家引用
-	player_ref = get_tree().get_first_node_in_group("player")
+	if player_ref:
+		_auto_init_skill_data()
+	else:
+		# 玩家还没生成，继续等待
+		_try_init()
+
+
+## 查找玩家引用（支持普通模式和联网模式）
+func _find_player() -> void:
+	# 联网模式：从 NetworkPlayerManager 获取本地玩家
+	if GameMain.current_mode_id == "online":
+		player_ref = NetworkPlayerManager.local_player
+	else:
+		# 普通模式：从 player 组获取
+		player_ref = get_tree().get_first_node_in_group("player")
 	
-	if not player_ref:
-		push_warning("[SkillIcon] 未找到玩家引用")
+	# 监听职业变更信号（联网模式分配角色时会触发）
+	if player_ref and player_ref.has_signal("class_changed"):
+		if not player_ref.class_changed.is_connected(_on_class_changed):
+			player_ref.class_changed.connect(_on_class_changed)
+
+
+## 职业变更回调
+func _on_class_changed(class_data: ClassData) -> void:
+	set_skill_data(class_data)
+
+
+## 自动初始化技能数据（联网模式）
+func _auto_init_skill_data() -> void:
+	if not player_ref or not is_instance_valid(player_ref):
+		return
+	
+	# 如果已经有技能数据，跳过
+	if skill_data:
+		return
+	
+	# 获取玩家的职业数据
+	if player_ref.class_manager and player_ref.class_manager.current_class:
+		set_skill_data(player_ref.class_manager.current_class)
 
 ## 设置技能数据
 func set_skill_data(class_data: ClassData) -> void:
@@ -45,7 +84,16 @@ func set_skill_data(class_data: ClassData) -> void:
 
 ## 重写：获取技能CD剩余时间
 func _get_remaining_cd() -> float:
-	if not player_ref or not player_ref.class_manager or not skill_data or not skill_data.skill_data:
+	if not player_ref or not skill_data or not skill_data.skill_data:
+		return 0.0
+	
+	# 联网模式下，Boss 角色使用自定义技能冷却（通过 PvP 系统）
+	if GameMain.current_mode_id == "online":
+		if player_ref.player_role_id == "boss" and player_ref.pvp_system:
+			return player_ref.pvp_system.get_boss_skill_cooldown()
+	
+	# 其他角色使用 class_manager
+	if not player_ref.class_manager:
 		return 0.0
 	
 	var class_manager = player_ref.class_manager
@@ -73,6 +121,24 @@ func _update_cd_display():
 	var class_manager = player_ref.class_manager if player_ref else null
 	if not class_manager:
 		return
+	
+	# 联网模式下，Boss 角色使用简化的 CD 显示（无持续时间，只有冷却）
+	if GameMain.current_mode_id == "online":
+		if player_ref and player_ref.player_role_id == "boss":
+			var remaining_cooldown = _get_remaining_cd()
+			if remaining_cooldown > 0:
+				if cd_mask:
+					cd_mask.visible = true
+				if cd_text:
+					cd_text.visible = true
+					cd_text.text = str(ceili(remaining_cooldown))
+					cd_text.modulate = Color.WHITE
+			else:
+				if cd_mask:
+					cd_mask.visible = false
+				if cd_text:
+					cd_text.visible = false
+			return
 	
 	var skill_name = skill_data.skill_data.name
 	

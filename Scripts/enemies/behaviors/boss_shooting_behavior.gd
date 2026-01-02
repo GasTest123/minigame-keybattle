@@ -185,6 +185,18 @@ func _start_prepare() -> void:
 	# 显示特效
 	_show_fx_effect()
 	
+	# 联网模式：广播技能开始给客户端
+	if GameMain.current_mode_id == "online" and NetworkManager.is_server():
+		NetworkPlayerManager.broadcast_boss_skill_start(
+			enemy, 
+			skill_sprite_anim, 
+			fx_sprite_frames_path, 
+			fx_animation_name, 
+			fx_offset, 
+			fx_scale, 
+			fx_above_boss
+		)
+	
 	print("[BossShootingBehavior] 技能准备中 | 准备时间:", prepare_time, "秒")
 
 ## 更新准备阶段
@@ -260,11 +272,24 @@ func _on_skill_animation_finished() -> void:
 
 ## 发射360度环形子弹
 func _shoot_bullets_in_circle() -> void:
-	if not bullet_scene or not enemy:
+	if not enemy:
 		return
 	
 	var shoot_pos = enemy.global_position + shoot_offset
 	var angle_step = TAU / bullet_count  # TAU = 2π
+	
+	# 联网模式：通过 NetworkPlayerManager 广播子弹
+	if GameMain.current_mode_id == "online":
+		for i in range(bullet_count):
+			var angle = i * angle_step
+			var direction = Vector2(cos(angle), sin(angle))
+			NetworkPlayerManager.broadcast_enemy_bullet(shoot_pos, direction, bullet_speed, bullet_damage, "basic", bullet_scene_path)
+		print("[BossShootingBehavior] 广播 ", bullet_count, " 颗子弹 | 位置:", shoot_pos, " 伤害:", bullet_damage)
+		return
+	
+	# 单机模式：直接生成子弹
+	if not bullet_scene:
+		return
 	
 	for i in range(bullet_count):
 		var angle = i * angle_step
@@ -357,6 +382,10 @@ func _end_skill() -> void:
 	# 恢复行走动画
 	enemy.play_animation("walk")
 	enemy.stop_skill_animation()
+	
+	# 联网模式：广播技能结束给客户端
+	if GameMain.current_mode_id == "online" and NetworkManager.is_server():
+		NetworkPlayerManager.broadcast_boss_skill_end(enemy)
 	
 	print("[BossShootingBehavior] 技能结束，进入冷却 | 冷却时间:", skill_cooldown, "秒")
 

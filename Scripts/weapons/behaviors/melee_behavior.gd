@@ -110,10 +110,14 @@ func perform_attack(enemies: Array) -> void:
 	damaged_enemies.clear()
 	_attack_candidates = enemies
 	
+	# 联网模式：广播近战攻击动画给客户端
+	if GameMain.current_mode_id == "online" and weapon.owner_peer_id > 0:
+		NetworkPlayerManager.broadcast_melee_attack(weapon.owner_peer_id)
+	
 	# 立即检查并造成伤害
 	_check_and_damage_enemies()
 
-## 检测并伤害范围内的敌人
+## 检测并伤害范围内的目标（敌人和 PvP 玩家）
 func _check_and_damage_enemies() -> void:
 	if not weapon:
 		return
@@ -123,17 +127,17 @@ func _check_and_damage_enemies() -> void:
 	var knockback = get_knockback_force()
 	
 	# 使用上层传入的候选列表（通常已做范围筛选），避免全场 get_nodes_in_group 带来的分配与 O(N) 扫描
-	var enemies = _attack_candidates
-	for enemy in enemies:
-		if not is_instance_valid(enemy):
+	var targets = _attack_candidates
+	for target in targets:
+		if not is_instance_valid(target):
 			continue
 		
-		# 跳过已伤害的敌人
-		if damaged_enemies.has(enemy):
+		# 跳过已伤害的目标
+		if damaged_enemies.has(target):
 			continue
 		
 		# 计算距离
-		var distance = weapon.global_position.distance_to(enemy.global_position)
+		var distance = weapon.global_position.distance_to(target.global_position)
 		
 		# 如果在攻击范围内
 		if distance <= hit_range:
@@ -143,19 +147,25 @@ func _check_and_damage_enemies() -> void:
 			if is_critical:
 				final_damage = apply_critical(base_damage)
 			
-			# 造成伤害
-			if enemy.has_method("enemy_hurt"):
-				enemy.enemy_hurt(final_damage, is_critical)
+			# 造成伤害（区分敌人和玩家）
+			if target.is_in_group("enemy"):
+				if target.has_method("enemy_hurt"):
+					target.enemy_hurt(final_damage, is_critical)
+			elif target.is_in_group("player") and GameMain.current_mode_id == "online":
+				# PvP 目标：服务器直接处理伤害（攻击逻辑只在服务器执行）
+				var target_peer_id = target.get("peer_id")
+				if target_peer_id != null and weapon.owner_peer_id > 0:
+					NetworkPlayerManager.apply_pvp_damage(weapon.owner_peer_id, target_peer_id, final_damage)
 			
 			# 应用特殊效果
-			apply_special_effects(enemy, final_damage)
+			apply_special_effects(target, final_damage)
 			
 			# 击退效果
 			if knockback > 0:
-				_apply_knockback(enemy, knockback)
+				_apply_knockback(target, knockback)
 			
 			# 标记已伤害
-			damaged_enemies[enemy] = true
+			damaged_enemies[target] = true
 
 ## 应用击退效果
 func _apply_knockback(enemy: Node2D, force: float) -> void:

@@ -106,3 +106,32 @@ func _on_restart_pressed() -> void:
 	restart_requested.emit()
 	hide()
 	# 注意：不清除mode_id，让StartMenu继续使用当前模式
+
+
+## 联网模式：显示死亡界面（使用玩家自己的 master_key）
+func show_death_screen_online(player_master_key: int) -> void:
+	# 固定复活费用：1个masterkey
+	revive_cost = NetworkPlayerManager.REVIVE_COST_MASTER_KEY
+	can_afford = player_master_key >= revive_cost
+
+	# 联网模式：显示复活选项，隐藏再战和放弃按钮
+	revive_button.visible = true
+	restart_button.visible = false
+	give_up_button.visible = false
+
+	# 更新警告标签显示费用信息
+	warning_label.text = "复活费用：%d 生命钥匙 (当前: %d)" % [revive_cost, player_master_key]
+	warning_label.visible = true
+
+	# 更新复活按钮状态
+	if can_afford:
+		revive_button.disabled = false
+		revive_label.text = "复活 -%d生命钥匙" % revive_cost
+	else:
+		revive_button.disabled = true
+		revive_label.text = "生命钥匙不足"
+
+	# 显示界面
+	show()
+
+	print("[DeathUI] 联网模式显示死亡界面 | 费用:", revive_cost, " 当前生命钥匙:", player_master_key)

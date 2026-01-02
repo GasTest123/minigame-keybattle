@@ -201,6 +201,83 @@ static func initialize_classes() -> void:
 	tank.generate_traits_description()
 	classes["tank"] = tank
 
+	# Boss
+	register_boss_class()
+
+	# Player 1-4
+	for i in range(4):
+		register_player_class(i + 1)
+
+static func register_boss_class() -> void:
+	var boss = ClassData.new(
+		"怪怪 Monitor",
+		100,  # max_hp
+		500.0,  # speed
+		1.5,  # attack_multiplier（所有武器伤害+50%）
+		5,  # defense
+		0.1,  # crit_chance
+		1.8,  # crit_damage
+		"",  # skill_name (已废弃，使用 skill_data)
+		{}  # skill_params (已废弃，使用 skill_data)
+	)
+	boss.description = "神秘的显示器怪物，拥有强大的力量"
+	# 加载技能数据（新系统）- 使用 monitor 闪电风暴技能
+	boss.skill_data = load("res://resources/skills/boss_monitor_skill.tres") as SkillData
+	# 使用 monitor 的动画资源
+	boss.skin_frames = load("res://resources/enemies/animations/stage1/monitor_sprites.tres") as SpriteFrames
+	boss.scale = Vector2(0.8, 0.8)  # monitor 原始尺寸较大(530x600)，调整为合适大小
+	# UI 资源配置（使用 monitor 的头像）
+	boss.portrait = load("res://assets/UI/BOSSHP_ui/parrit-monitor.png")
+	# 同步到新系统
+	boss.sync_to_base_stats()
+	# 自动生成特性描述
+	boss.generate_traits_description()
+	classes["boss"] = boss
+
+static func register_player_class(n: int) -> void:
+	var player = ClassData.new(
+		"KeyPerson-Player%d" % n,
+		50,  # max_hp
+		400.0,  # speed
+		1.15,  # attack_multiplier（所有武器伤害+15%）
+		2,  # defense
+		0.1,  # crit_chance
+		1.8,  # crit_damage
+		"",  # skill_name (已废弃，使用 skill_data)
+		{}  # skill_params (已废弃，使用 skill_data)
+	)
+	player.description = "均衡发展的职业，适合所有武器类型"
+	# 平衡者已经通过 attack_multiplier 设置了所有武器伤害+15%
+	# speed 保持 400.0（移动速度0%）
+	# 加载技能数据（新系统）
+	player.skill_data = load("res://resources/skills/all_stats.tres") as SkillData
+	player.skin_frames = player_sprite_frames("player%d" % n)
+	# 同步到新系统
+	player.sync_to_base_stats()
+	# 自动生成特性描述
+	player.generate_traits_description()
+	classes["player%d" % n] = player
+
+static func player_sprite_frames(skin: String) -> SpriteFrames:
+	var player_path = "res://assets/player/"
+
+	var sprite_frame_custom = SpriteFrames.new()
+	var texture_size = Vector2(520, 240)
+	var sprite_size = Vector2(130, 240)
+	var full_texture: Texture = load(player_path + skin + "-sheet.png")
+
+	var num_columns = int(texture_size.x / sprite_size.x)
+	var num_row = int(texture_size.y / sprite_size.y)
+
+	for x in range(num_columns):
+		for y in range(num_row):
+			var frame = AtlasTexture.new()
+			frame.atlas = full_texture
+			frame.region = Rect2(Vector2(x, y) * sprite_size, sprite_size)
+			sprite_frame_custom.add_frame("default", frame)
+
+	return sprite_frame_custom
+
 ## 获取职业（重命名以避免与Node.get_class()冲突）
 static func get_class_data(class_id: String) -> ClassData:
 	if classes.is_empty():

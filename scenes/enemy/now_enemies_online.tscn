@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://d1o1bjrxhxm7m"]
+
+[ext_resource type="PackedScene" uid="uid://cnjsx2cp2m44b" path="res://scenes/enemy/enemy_online.tscn" id="1_enemy"]
+[ext_resource type="Script" uid="uid://bsnpl0sqbvgm1" path="res://Scripts/enemies/now_enemies_online.gd" id="1_k5spb"]
+
+[node name="now_enemies" type="Node2D"]
+script = ExtResource("1_k5spb")
+enemy_scene = ExtResource("1_enemy")
+min_distance_from_player = 200.0
+
+[node name="Enemies" type="Node" parent="."]
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://cnjsx2cp2m44b")
+spawn_path = NodePath("../Enemies")

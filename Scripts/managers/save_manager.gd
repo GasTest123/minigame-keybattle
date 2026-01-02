@@ -4,6 +4,7 @@ extends Node
 ## 负责保存和读取用户数据（名字、楼层等）
 
 const SAVE_FILE_PATH = "user://user_save.dat"
+var save_file_path: String = ""
 
 ## ==================== 性能设置缓存（避免频繁字典查找） ====================
 ## 这些变量在加载存档或设置变更时同步更新，供高频调用直接访问
@@ -31,8 +32,18 @@ var user_data: Dictionary = {
 	"master_volume": 1.0    # 主音量（线性 0.0-1.0）
 }
 
+func get_run_instance_id() -> String:
+	var args := OS.get_cmdline_args()
+	for i in args.size():
+		var arg := args[i]
+		if arg == "-i" or arg == "--instance-id":
+			if i + 1 < args.size():
+				return args[i + 1]
+	return "1"
+
 ## 初始化
 func _ready() -> void:
+	resolve_save_file_path()
 	load_user_data()
 	# 应用保存的显示模式设置
 	apply_display_mode()
@@ -40,11 +51,19 @@ func _ready() -> void:
 	apply_master_volume()
 	print("[SaveManager] 存档管理器初始化完成")
 
+## 解析存档文件路径
+func resolve_save_file_path() -> void:
+	save_file_path = SAVE_FILE_PATH
+	var instance_id := get_run_instance_id()
+	if instance_id != "" and instance_id != "1":
+		save_file_path = "user://user_save_%s.dat" % instance_id
+	print("[SaveManager] 当前存档文件路径: %s" % save_file_path)
+
 ## 保存用户数据
 func save_user_data() -> void:
-	var file = FileAccess.open(SAVE_FILE_PATH, FileAccess.WRITE)
+	var file = FileAccess.open(save_file_path, FileAccess.WRITE)
 	if file == null:
-		push_error("[SaveManager] 无法打开存档文件进行写入: %s" % SAVE_FILE_PATH)
+		push_error("[SaveManager] 无法打开存档文件进行写入: %s" % save_file_path)
 		return
 	
 	# 将数据转换为JSON格式保存
@@ -56,13 +75,13 @@ func save_user_data() -> void:
 
 ## 读取用户数据
 func load_user_data() -> bool:
-	if not FileAccess.file_exists(SAVE_FILE_PATH):
+	if not FileAccess.file_exists(save_file_path):
 		print("[SaveManager] 存档文件不存在，使用默认数据")
 		return false
 	
-	var file = FileAccess.open(SAVE_FILE_PATH, FileAccess.READ)
+	var file = FileAccess.open(save_file_path, FileAccess.READ)
 	if file == null:
-		push_error("[SaveManager] 无法打开存档文件进行读取: %s" % SAVE_FILE_PATH)
+		push_error("[SaveManager] 无法打开存档文件进行读取: %s" % save_file_path)
 		return false
 	
 	var json_string = file.get_as_text()
@@ -167,8 +186,8 @@ func clear_save_data() -> void:
 		"display_mode": "fullscreen",
 		"tutorial_shown": false
 	}
-	if FileAccess.file_exists(SAVE_FILE_PATH):
-		DirAccess.remove_absolute(SAVE_FILE_PATH)
+	if FileAccess.file_exists(save_file_path):
+		DirAccess.remove_absolute(save_file_path)
 	print("[SaveManager] 存档数据已清除")
 
 ## 增加死亡次数

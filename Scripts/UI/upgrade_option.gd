@@ -184,7 +184,8 @@ func _update_buy_button() -> void:
 		return
 	
 	var display_cost = get_display_cost()
-	var can_afford = GameMain.gold >= display_cost
+	var player_gold = _get_player_gold()
+	var can_afford = player_gold >= display_cost
 	buy_button.disabled = not can_afford
 	
 	# 钥匙不足时整个按钮变灰
@@ -193,11 +194,26 @@ func _update_buy_button() -> void:
 	else:
 		buy_button.modulate = Color.WHITE
 
+## 获取玩家当前钥匙数量（兼容单机和联网模式）
+func _get_player_gold() -> int:
+	if GameMain.current_mode_id == "online":
+		# 联网模式：从本地玩家获取
+		var local_player = NetworkPlayerManager.local_player
+		if local_player:
+			var gold = local_player.get("gold")
+			if gold != null:
+				return gold
+		return 0
+	else:
+		# 单机模式：从 GameMain 获取
+		return GameMain.gold
+
 func _on_buy_button_pressed() -> void:
 	if upgrade_data:
 		var display_cost = get_display_cost()
-		
-		if GameMain.gold >= display_cost:
+		var player_gold = _get_player_gold()
+
+		if player_gold >= display_cost:
 			purchased.emit(upgrade_data)
 
 func set_lock_state(locked: bool) -> void:

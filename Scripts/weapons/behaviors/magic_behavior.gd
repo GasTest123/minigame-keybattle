@@ -182,11 +182,17 @@ func _execute_cast(cast_data: Dictionary) -> void:
 		if is_critical:
 			final_damage = apply_critical(base_damage)
 		
-		# 对目标造成直接伤害
-		if target.has_method("enemy_hurt"):
-			var damage_to_deal = int(final_damage * get_explosion_damage_multiplier())
-			target.enemy_hurt(damage_to_deal, is_critical)
-			apply_special_effects(target, damage_to_deal)
+		# 对目标造成直接伤害（区分敌人和玩家）
+		var damage_to_deal = int(final_damage * get_explosion_damage_multiplier())
+		if target.is_in_group("enemy"):
+			if target.has_method("enemy_hurt"):
+				target.enemy_hurt(damage_to_deal, is_critical)
+				apply_special_effects(target, damage_to_deal)
+		elif target.is_in_group("player") and GameMain.current_mode_id == "online":
+			# PvP 目标：服务器直接处理伤害（攻击逻辑只在服务器执行）
+			var target_peer_id = target.get("peer_id")
+			if target_peer_id != null and weapon.owner_peer_id > 0:
+				NetworkPlayerManager.apply_pvp_damage(weapon.owner_peer_id, target_peer_id, damage_to_deal)
 		
 		# 爆炸范围伤害
 		if has_explosion_damage() and explosion_radius > 0:
@@ -271,8 +277,14 @@ func _play_muzzle_effect(direction: Vector2) -> void:
 	
 	# 计算朝向角度
 	var rotation_angle = direction.angle()
+
+	# 联网模式：
+	# - 客户端枪口特效由 NetworkPlayerManager.rpc_magic_cast/execute 事件在本地武器 shoot_pos 上播放（保证尺寸/旋转一致）
+	# - 这里保留服务器本地播放（服务器观察/录制用），避免 online 下服务器完全没有枪口反馈
+	if GameMain.current_mode_id == "online" and not NetworkManager.is_server():
+		return
 	
-	# 调用 CombatEffectManager 播放特效，绑定到 shoot_pos 上跟随武器移动
+	# 单机模式：本地直接播放，绑定到 shoot_pos 上跟随武器移动
 	CombatEffectManager.play_muzzle_flash(
 		scene_path,
 		ani_name,
@@ -293,6 +305,14 @@ func _start_cast(target: Node2D, damage: int, radius: float, delay: float) -> vo
 			indicator = _create_persistent_indicator(target, radius, delay)
 		else:
 			indicator = _create_fixed_indicator(target_position, radius, delay)
+	
+	# 联网模式：广播施法效果给客户端
+	if GameMain.current_mode_id == "online" and weapon.owner_peer_id > 0:
+		var weapon_name = params.get("weapon_name", "")
+		var texture_path = ""
+		if _cached_indicator_texture:
+			texture_path = _cached_indicator_texture.resource_path
+		NetworkPlayerManager.broadcast_magic_cast(target_position, radius, delay, weapon.owner_peer_id, weapon_name, texture_path, indicator_color)
 	
 	casting_attacks.append({
 		"target": target,
@@ -319,11 +339,17 @@ func _execute_immediate_attack(target: Node2D, damage: int, radius: float) -> vo
 		final_damage = apply_critical(damage)
 	
 	if is_locked:
-		# 锁敌模式：直接伤害 + 爆炸伤害
-		if target.has_method("enemy_hurt"):
-			var damage_to_deal = int(final_damage * get_explosion_damage_multiplier())
-			target.enemy_hurt(damage_to_deal, is_critical)
-			apply_special_effects(target, damage_to_deal)
+		# 锁敌模式：直接伤害 + 爆炸伤害（区分敌人和玩家）
+		var damage_to_deal = int(final_damage * get_explosion_damage_multiplier())
+		if target.is_in_group("enemy"):
+			if target.has_method("enemy_hurt"):
+				target.enemy_hurt(damage_to_deal, is_critical)
+				apply_special_effects(target, damage_to_deal)
+		elif target.is_in_group("player") and GameMain.current_mode_id == "online":
+			# PvP 目标：服务器直接处理伤害（攻击逻辑只在服务器执行）
+			var target_peer_id = target.get("peer_id")
+			if target_peer_id != null and weapon.owner_peer_id > 0:
+				NetworkPlayerManager.apply_pvp_damage(weapon.owner_peer_id, target_peer_id, damage_to_deal)
 	
 	# 爆炸范围伤害
 	if has_explosion_damage() and radius > 0:
@@ -331,8 +357,16 @@ func _execute_immediate_attack(target: Node2D, damage: int, radius: float) -> vo
 	
 	# 播放爆炸特效
 	_create_explosion_effect(explosion_position)
+	
+	# 联网模式：广播爆炸效果给客户端
+	if GameMain.current_mode_id == "online" and weapon.owner_peer_id > 0:
+		var weapon_name = params.get("weapon_name", "")
+		var texture_path = ""
+		if _cached_indicator_texture:
+			texture_path = _cached_indicator_texture.resource_path
+		NetworkPlayerManager.broadcast_magic_execute(explosion_position, radius, weapon.owner_peer_id, weapon_name, texture_path, indicator_color)
 
-## 在指定位置产生爆炸效果
+## 在指定位置产生爆炸效果（包括 PvP 伤害）
 func _explode_at_position(pos: Vector2, radius: float, base_damage: int, exclude_target = null) -> void:
 	if not weapon:
 		return
@@ -360,6 +394,12 @@ func _explode_at_position(pos: Vector2, radius: float, base_damage: int, exclude
 			if e.has_method("enemy_hurt"):
 				e.enemy_hurt(final_damage)
 				apply_special_effects(e, final_damage)
+	
+	# 联网模式：处理 PvP 爆炸伤害
+	if GameMain.current_mode_id == "online" and weapon.owner_peer_id > 0:
+		NetworkPlayerManager.handle_explosion_collision(
+			weapon.owner_peer_id, pos, radius, base_damage, get_explosion_damage_multiplier()
+		)
 
 
 ## 爆炸伤害候选：优先使用 WaveSystemV3.active_enemies（无新数组分配），回退到 group("enemy")
@@ -448,4 +488,3 @@ func _show_explosion_indicator(pos: Vector2, radius: float) -> void:
 ## 获取指示器纹理
 func _get_indicator_texture() -> Texture2D:
 	return _cached_indicator_texture
-

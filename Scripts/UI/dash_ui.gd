@@ -2,18 +2,33 @@ extends BaseSkillUI
 
 ## Dash UI 控制脚本
 ## 显示 Dash 技能的 CD 状态
+## 支持普通模式和联网模式
 
 var player_ref: CharacterBody2D = null
 
 func _ready():
 	super._ready()  # 调用基类初始化
-	
-	# 等待场景加载完成，获取玩家引用
+	_try_init()
+
+
+## 尝试初始化（带重试）
+func _try_init() -> void:
 	await get_tree().create_timer(0.2).timeout
-	player_ref = get_tree().get_first_node_in_group("player")
+	_find_player()
 	
 	if not player_ref:
-		push_warning("[DashUI] 未找到玩家引用")
+		# 玩家还没生成，继续等待
+		_try_init()
+
+
+## 查找玩家引用（支持普通模式和联网模式）
+func _find_player() -> void:
+	# 联网模式：从 NetworkPlayerManager 获取本地玩家
+	if GameMain.current_mode_id == "online":
+		player_ref = NetworkPlayerManager.local_player
+	else:
+		# 普通模式：从 player 组获取
+		player_ref = get_tree().get_first_node_in_group("player")
 
 ## 重写：获取Dash的CD剩余时间
 func _get_remaining_cd() -> float:

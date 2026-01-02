@@ -22,6 +22,12 @@ var hit_fx_sprite_frames: SpriteFrames = null  # 击中特效资源
 var hit_fx_animation_name: String = ""         # 击中特效动画名
 var hit_fx_scale: Vector2 = Vector2(1.0, 1.0)  # 击中特效缩放
 
+## 联网模式：是否为纯视觉子弹（客户端用，不处理伤害）
+var is_visual_only: bool = false
+
+## 联网模式：子弹所有者的 peer_id（用于排除自己，boss 玩家技能使用）
+var owner_peer_id: int = 0
+
 func start(pos: Vector2, _dir: Vector2, _speed: float, _hurt: int, _life_time: float = 3.0) -> void:
 	global_position = pos
 	dir = _dir
@@ -56,9 +62,15 @@ func initialize_with_data(pos: Vector2, _dir: Vector2, data: EnemyBulletData) ->
 	if has_node("AnimatedSprite2D"):
 		var sprite = $AnimatedSprite2D
 		if data.texture_path != "":
-			var texture = load(data.texture_path)
+			var texture = load(data.texture_path) as Texture2D
 			if texture:
-				sprite.texture = texture
+				# AnimatedSprite2D 需要 SpriteFrames，创建一个包含单帧的 SpriteFrames
+				var sprite_frames = SpriteFrames.new()
+				sprite_frames.add_animation("default")
+				sprite_frames.add_frame("default", texture)
+				sprite_frames.set_animation_loop("default", true)
+				sprite.sprite_frames = sprite_frames
+				sprite.play("default")
 		sprite.scale = data.scale
 	
 	# 应用碰撞大小
@@ -73,8 +85,24 @@ func _physics_process(delta: float) -> void:
 	global_position += _velocity * delta
 
 func _on_body_shape_entered(_body_rid: RID, body: Node2D, _body_shape_index: int, _local_shape_index: int) -> void:
-	# 只对玩家造成伤害
+	# 只对玩家造成伤害（不攻击怪物）
 	if body.is_in_group("player"):
+		# 检查玩家是否已经死亡（不攻击墓碑）
+		var target_hp = body.get("now_hp")
+		if target_hp != null and target_hp <= 0:
+			return  # 跳过已死亡的玩家
+		
+		# 检查是否是子弹所有者（不攻击自己）
+		if owner_peer_id > 0:
+			var target_peer_id = body.get("peer_id")
+			if target_peer_id == owner_peer_id:
+				return  # 跳过所有者，不造成伤害
+			
+			# Boss 玩家发射的子弹只攻击非 Boss 玩家
+			var target_role = body.get("player_role_id")
+			if target_role == "boss":
+				return  # 跳过其他 Boss 玩家，不造成伤害
+		
 		# 检查是否已经命中过（穿透逻辑）
 		if pierce_count > 0 and body in hit_targets:
 			return
@@ -85,8 +113,8 @@ func _on_body_shape_entered(_body_rid: RID, body: Node2D, _body_shape_index: int
 		# 播放击中特效
 		_play_hit_fx(hit_pos)
 		
-		# 对玩家造成伤害
-		if body.has_method("player_hurt"):
+		# 对玩家造成伤害（纯视觉子弹不造成伤害）
+		if not is_visual_only and body.has_method("player_hurt"):
 			body.player_hurt(hurt)
 		
 		# 记录命中的目标
@@ -99,6 +127,10 @@ func _on_body_shape_entered(_body_rid: RID, body: Node2D, _body_shape_index: int
 		
 		queue_free()
 		return
+	
+	# 如果碰撞到敌人（怪物），忽略不造成伤害
+	if body.is_in_group("enemy"):
+		return  # Boss 子弹不攻击怪物
 	
 	# 如果碰撞到其他物体（如墙壁），也销毁
 	# 这里可以根据需要添加更多碰撞检测

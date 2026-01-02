@@ -84,6 +84,10 @@ func _on_player_hp_changed(current_hp: int, _max_hp: int) -> void:
 
 ## 触发死亡
 func _trigger_death() -> void:
+	# 联网模式下，服务器角色不触发死亡
+	if GameMain.current_mode_id == "online":
+		return
+
 	if is_dead:
 		return
 	
@@ -331,7 +335,9 @@ func _on_revive_requested() -> void:
 ## 放弃请求
 func _on_give_up_requested() -> void:
 	print("[DeathManager] 玩家放弃游戏")
-	
+
+	_stop_network_if_online("give_up")
+
 	# 停止计时器（最高波次记录已在波次完成时统一处理）
 	_stop_timer_on_game_end()
 	
@@ -351,6 +357,8 @@ func _on_give_up_requested() -> void:
 func _on_restart_requested() -> void:
 	var current_mode = GameMain.current_mode_id
 	print("[DeathManager] 玩家再战 | 当前模式:", current_mode)
+
+	_stop_network_if_online("restart")
 	
 	# 停止计时器（最高波次记录已在波次完成时统一处理）
 	_stop_timer_on_game_end()
@@ -499,3 +507,12 @@ func _cleanup_ghosts_for_multi_mode() -> void:
 func _stop_timer_on_game_end() -> void:
 	if GameMain.current_session:
 		GameMain.current_session.stop_timer()
+
+func _stop_network_if_online(context: String) -> void:
+	if GameMain.current_mode_id != "online":
+		return
+	if NetworkManager.has_method("stop_network"):
+		print("[DeathManager] 停止网络连接 | 来源:%s" % context)
+		NetworkManager.stop_network()
+	else:
+		print("[DeathManager] 未找到 NetworkManager 或缺少 stop_network 方法 | 来源:%s" % context)

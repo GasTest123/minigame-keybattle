@@ -2,16 +2,35 @@ extends Control
 
 @onready var chapter1_btn: TextureButton = $bg/MarginContainer/HBoxContainer/chaper1panel/chaper1beginBtn
 @onready var chapter2_btn: TextureButton = $bg/MarginContainer/HBoxContainer/chaper2panel/chaper2beginBtn
+@onready var chapter3_btn: TextureButton = $bg/MarginContainer/HBoxContainer/chaper3panel/chaper3beginBtn
 @onready var back_button: TextureButton = $bg/backButton
+
+## Chapter 3（联网模式）文案/按钮
+@onready var chapter3_info1_label: RichTextLabel = $bg/MarginContainer/HBoxContainer/chaper3panel/chaper3text/RichTextLabel4
+@onready var chapter3_info2_label: RichTextLabel = $bg/MarginContainer/HBoxContainer/chaper3panel/chaper3text/RichTextLabel5
+@onready var chapter3_btn_label: Label = $bg/MarginContainer/HBoxContainer/chaper3panel/chaper3beginBtn/beginLabel
 
 ## 个人记录显示标签
 @onready var chapter1_record_label: RichTextLabel = $bg/MarginContainer/HBoxContainer/chaper1panel/chaper1text/selfrecordLabel
 @onready var chapter2_record_label: RichTextLabel = $bg/MarginContainer/HBoxContainer/chaper2panel/chaper2text/selfrecordLabel
 
+## 联网模式配置
+const ONLINE_MODE_ID := "online"
+const ONLINE_MAP_ID := "online_stage_1"
+const ONLINE_SCENE_PATH := "res://scenes/map/online_map.tscn"
+
+var _ip_address: String = "127.0.0.1"
+var _port: int = NetworkManager.DEFAULT_PORT
+var _online_role: String = ""  # "s" = server, "c" = client, "" = disabled
+var _is_waiting_for_join: bool = false
+
 func _ready() -> void:
 	# 播放标题BGM
 	BGMManager.play_bgm("title")
 	print("[LevelSelect] 关卡选择界面就绪")
+	
+	# 检测联网模式启动参数
+	_check_online_mode_args()
 	
 	# 连接按钮信号
 	if chapter1_btn:
@@ -20,11 +39,24 @@ func _ready() -> void:
 	if chapter2_btn:
 		chapter2_btn.pressed.connect(_on_chapter2_begin_pressed)
 	
+	if chapter3_btn:
+		chapter3_btn.pressed.connect(_on_chapter3_begin_pressed)
+	
 	if back_button:
 		back_button.pressed.connect(_on_back_button_pressed)
 	
+	# 连接网络信号
+	_connect_network_signals()
+
+	# 更新联网模式UI
+	_update_online_chapter3_ui()
+	
 	# 更新个人记录显示
 	_update_record_labels()
+
+
+func _exit_tree() -> void:
+	_disconnect_network_signals()
 
 
 func _on_chapter1_begin_pressed() -> void:
@@ -51,9 +83,39 @@ func _on_chapter2_begin_pressed() -> void:
 		get_tree().change_scene_to_file("res://scenes/UI/cutscene_chapter2.tscn")
 
 
+func _on_chapter3_begin_pressed() -> void:
+	# Chapter 3: 年会模式 - Online
+	print("[LevelSelect] 选择 Chapter 3: Online 模式")
+	
+	GameMain.current_mode_id = ONLINE_MODE_ID
+	GameMain.current_map_id = ONLINE_MAP_ID
+	# ModeRegistry.set_current_mode(ONLINE_MODE_ID)
+	# MapRegistry.set_current_map(ONLINE_MAP_ID)
+
+	if _online_role == "s":
+		# server：启动/停止服务
+		if NetworkManager.is_server():
+			NetworkManager.stop_network()
+			_update_online_chapter3_ui()
+		else:
+			_start_as_server()
+	elif _online_role == "c":
+		# client：断开/重连
+		if NetworkManager.is_client() or _is_waiting_for_join:
+			NetworkManager.stop_network()
+			_update_online_chapter3_ui()
+		else:
+			_start_as_client()
+			_update_online_chapter3_ui()
+	else:
+		print("[LevelSelect] 联网模式未启用（需要 -s 或 -c 启动参数）")
+		_update_online_chapter3_ui()
+
+
 func _on_back_button_pressed() -> void:
 	print("[LevelSelect] 返回主菜单")
 	get_tree().change_scene_to_file("res://scenes/UI/main_title.tscn")
+
 
 ## 更新个人记录显示
 func _update_record_labels() -> void:
@@ -89,3 +151,159 @@ func _format_time(seconds: float) -> String:
 	var centiseconds = int((seconds - int(seconds)) * 100)
 	
 	return "%d'%02d''%02d" % [total_minutes, secs, centiseconds]
+
+## ==================== 联网模式 ====================
+
+## 检测联网模式启动参数
+func _check_online_mode_args() -> void:
+	var args := OS.get_cmdline_args()
+	for i in args.size():
+		var arg := args[i]
+		if arg == "--server":
+			_online_role = "s"
+			_port = NetworkManager.DEFAULT_PORT
+			# 支持：--server :port 或 --server port
+			if i + 1 < args.size():
+				var port_token := String(args[i + 1]).strip_edges()
+				if port_token.begins_with(":"):
+					port_token = port_token.substr(1)
+				if port_token.is_valid_int():
+					var parsed_port := int(port_token)
+					if parsed_port > 0 and parsed_port <= 65535:
+						_port = parsed_port
+			print("[LevelSelect] 检测到服务器模式启动参数，端口: %d" % _port)
+			return
+		if arg == "--client" or arg == "-c":
+			_online_role = "c"
+			_ip_address = "127.0.0.1"
+			_port = NetworkManager.DEFAULT_PORT
+			if i + 1 < args.size():
+				var addr_token := String(args[i + 1]).strip_edges()
+				# 支持：--client ip:port 或 --client ip
+				# 注：IPv6 未支持（包含多个 ':'），当前按最后一个 ':' 解析端口
+				var last_colon := addr_token.rfind(":")
+				var host_part := addr_token
+				var port_part := ""
+				if last_colon > 0:
+					host_part = addr_token.substr(0, last_colon)
+					port_part = addr_token.substr(last_colon + 1)
+				if port_part != "" and port_part.is_valid_int():
+					var parsed_port := int(port_part)
+					if parsed_port > 0 and parsed_port <= 65535:
+						_port = parsed_port
+				if IP.resolve_hostname_addresses(host_part, IP.TYPE_ANY).size() > 0:
+					_ip_address = host_part
+			print("[LevelSelect] 检测到客户端模式启动参数，目标: %s:%d" % [_ip_address, _port])
+			return
+	_online_role = ""
+	_ip_address = "127.0.0.1"
+	_port = NetworkManager.DEFAULT_PORT
+
+## 作为服务器启动
+func _start_as_server() -> void:
+	if not NetworkManager.start_host(_port):
+		print("[LevelSelect] 主机启动失败，请检查端口是否被占用")
+		_update_online_chapter3_ui()
+		return
+	print("[LevelSelect] 主机已启动，等待其他玩家加入...")
+	await SceneCleanupManager.change_scene_safely_keep_mode(ONLINE_SCENE_PATH)
+
+## 作为客户端加入
+func _start_as_client() -> void:
+	if NetworkManager.start_client(_ip_address, _port):
+		print("[LevelSelect] 正在连接 %s:%d ..." % [_ip_address, _port])
+		_is_waiting_for_join = true
+		_update_online_chapter3_ui()
+	else:
+		print("[LevelSelect] 连接失败，请确认地址与端口")
+		_update_online_chapter3_ui()
+
+## 连接网络信号
+func _connect_network_signals() -> void:
+	if not NetworkManager.network_started.is_connected(_on_network_started):
+		NetworkManager.network_started.connect(_on_network_started)
+	if not NetworkManager.network_stopped.is_connected(_on_network_stopped):
+		NetworkManager.network_stopped.connect(_on_network_stopped)
+	if not NetworkManager.connection_failed.is_connected(_on_network_connection_failed):
+		NetworkManager.connection_failed.connect(_on_network_connection_failed)
+	if not NetworkManager.server_disconnected.is_connected(_on_network_server_disconnected):
+		NetworkManager.server_disconnected.connect(_on_network_server_disconnected)
+	if not NetworkManager.connected_to_server.is_connected(_on_network_connected_to_server):
+		NetworkManager.connected_to_server.connect(_on_network_connected_to_server)
+
+## 断开网络信号
+func _disconnect_network_signals() -> void:
+	if NetworkManager.network_started.is_connected(_on_network_started):
+		NetworkManager.network_started.disconnect(_on_network_started)
+	if NetworkManager.network_stopped.is_connected(_on_network_stopped):
+		NetworkManager.network_stopped.disconnect(_on_network_stopped)
+	if NetworkManager.connection_failed.is_connected(_on_network_connection_failed):
+		NetworkManager.connection_failed.disconnect(_on_network_connection_failed)
+	if NetworkManager.server_disconnected.is_connected(_on_network_server_disconnected):
+		NetworkManager.server_disconnected.disconnect(_on_network_server_disconnected)
+	if NetworkManager.connected_to_server.is_connected(_on_network_connected_to_server):
+		NetworkManager.connected_to_server.disconnect(_on_network_connected_to_server)
+
+func _on_network_started(is_server: bool) -> void:
+	if is_server:
+		print("[LevelSelect] 主机启动成功")
+	else:
+		print("[LevelSelect] 正在尝试连接服务器...")
+	_update_online_chapter3_ui()
+
+func _on_network_stopped() -> void:
+	if _is_waiting_for_join:
+		print("[LevelSelect] 连接已关闭")
+	_is_waiting_for_join = false
+	_update_online_chapter3_ui()
+
+func _on_network_connection_failed() -> void:
+	print("[LevelSelect] 连接失败，请重试")
+	_is_waiting_for_join = false
+	_update_online_chapter3_ui()
+
+func _on_network_server_disconnected() -> void:
+	print("[LevelSelect] 与主机断开连接")
+	_is_waiting_for_join = false
+	_update_online_chapter3_ui()
+
+func _on_network_connected_to_server() -> void:
+	if not _is_waiting_for_join:
+		return
+	print("[LevelSelect] 连接成功，正在进入战场...")
+	_is_waiting_for_join = false
+	_update_online_chapter3_ui()
+	await SceneCleanupManager.change_scene_safely_keep_mode(ONLINE_SCENE_PATH)
+
+
+func _update_online_chapter3_ui() -> void:
+	# 根据联网模式参数显示/隐藏年会模式按钮，并刷新 Chapter 3 文案
+	if chapter3_btn:
+		chapter3_btn.disabled = (_online_role == "")
+		chapter3_btn.modulate.a = 0.5 if _online_role == "" else 1.0
+
+	if _online_role == "":
+		if chapter3_info1_label:
+			chapter3_info1_label.text = "[i]启动参数 --server/--client[/i]"
+		if chapter3_btn_label:
+			chapter3_btn_label.text = "进  入"
+		return
+
+	if _online_role == "s":
+		if chapter3_info1_label:
+			chapter3_info1_label.text = "[i]当前为 [color=#ff6600]Server[/color] 端口：[color=#ff6600]%d[/color][/i]" % _port
+		if chapter3_info2_label:
+			if "enable_role_impostor" in NetworkPlayerManager and NetworkPlayerManager.enable_role_impostor:
+				chapter3_info2_label.text = "[i]【 🎭 [color=#ff6600]开启内鬼[/color] 】[/i]"
+			else:
+				chapter3_info2_label.text = "[i][/i]"
+		if chapter3_btn_label:
+			chapter3_btn_label.text = "停止服务" if NetworkManager.is_server() else "启动服务"
+		return
+
+	if _online_role == "c":
+		if chapter3_info1_label:
+			chapter3_info1_label.text = "[i]Server IP：[color=#ff6600]%s:%d[/color][/i]" % [_ip_address, _port]
+		if chapter3_btn_label:
+			chapter3_btn_label.text = "断  开" if (NetworkManager.is_client() or _is_waiting_for_join) else "连  接"
+		return

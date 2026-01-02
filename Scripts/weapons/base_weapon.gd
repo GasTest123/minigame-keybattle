@@ -36,6 +36,9 @@ var damage_multiplier: float = 1.0
 var attack_speed_multiplier: float = 1.0
 var range_multiplier: float = 1.0
 
+var owner_player: PlayerCharacter = null
+var owner_peer_id: int = 0
+
 ## 武器等级颜色
 const weapon_level_colors = {
 	level_1 = "#FFFFFF",
@@ -334,11 +337,38 @@ func _on_timer_timeout() -> void:
 	if attack_enemies.is_empty() or weapon_data == null:
 		return
 	
-	# 清理无效的敌人
-	attack_enemies = attack_enemies.filter(func(enemy): return is_instance_valid(enemy))
+	# 获取武器的检测范围（用于二次验证）
+	var weapon_range = get_range()
+	
+	# 清理无效的敌人、死亡的 PvP 目标、以及超出范围的目标
+	var before_count = attack_enemies.size()
+	attack_enemies = attack_enemies.filter(func(target):
+		if not is_instance_valid(target):
+			return false
+		# 联网模式下，过滤死亡的玩家
+		if GameMain.current_mode_id == "online" and target.is_in_group("player"):
+			var target_hp = target.get("now_hp")
+			if target_hp != null and target_hp <= 0:
+				return false
+		# 检查目标是否仍在武器范围内（防止 body_exited 未正确触发）
+		var distance = global_position.distance_to(target.global_position)
+		if distance > weapon_range * 1.2:  # 添加20%容差
+			return false
+		return true
+	)
+	var after_count = attack_enemies.size()
+	
+	if before_count != after_count:
+		print("[BaseWeapon] 清理无效/死亡/超出范围目标: %d -> %d" % [before_count, after_count])
 	
 	if attack_enemies.is_empty():
 		return
+	
+	if GameMain.current_mode_id == "online":
+		if not NetworkManager.is_server():
+			return
+		# 服务器执行攻击（子类负责广播给客户端）
+		print("[BaseWeapon] 服务器执行攻击, 目标数量: %d, owner_peer_id: %d" % [attack_enemies.size(), owner_peer_id])
 	
 	# 使用行为执行攻击
 	if behavior:
@@ -346,18 +376,34 @@ func _on_timer_timeout() -> void:
 	else:
 		# 降级：调用子类方法（兼容旧代码）
 		_perform_attack()
-
+	
 ## 敌人进入检测范围
 func _on_area_2d_body_entered(body: Node2D) -> void:
+	var added = false
 	if body.is_in_group("enemy") and not attack_enemies.has(body):
 		attack_enemies.append(body)
 		sort_enemy()
-
+		added = true
+	
+	# 联网模式：Boss 玩家也是攻击目标（PvP）
+	if NetworkPlayerManager.is_valid_pvp_target(owner_peer_id, body) and not attack_enemies.has(body):
+		attack_enemies.append(body)
+		sort_enemy()
+		added = true
+	
+	if added and GameMain.current_mode_id == "online" and NetworkManager.is_server():
+		print("[BaseWeapon] 目标进入: %s, 目标数: %d, owner: %d" % [body.name, attack_enemies.size(), owner_peer_id])
+	
 ## 敌人离开检测范围
 func _on_area_2d_body_exited(body: Node2D) -> void:
-	if body.is_in_group("enemy") and attack_enemies.has(body):
+	if attack_enemies.has(body):
 		attack_enemies.erase(body)
 		sort_enemy()
+		if GameMain.current_mode_id == "online" and NetworkManager.is_server():
+			print("[BaseWeapon] 目标离开: %s, 剩余: %d, owner: %d" % [body.name, attack_enemies.size(), owner_peer_id])
+
+
+
 
 ## 排序敌人（按距离）
 func sort_enemy() -> void:
@@ -370,6 +416,10 @@ func sort_enemy() -> void:
 				return false
 			return x.global_position.distance_to(self.global_position) < y.global_position.distance_to(self.global_position)
 	)
+
+func set_owner_player(player: PlayerCharacter) -> void:
+	owner_player = player
+	owner_peer_id = player.peer_id if player else 0
 
 ## 虚函数：子类实现具体的攻击逻辑（兼容旧代码）
 func _perform_attack() -> void:

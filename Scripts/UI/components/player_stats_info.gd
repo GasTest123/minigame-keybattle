@@ -61,8 +61,13 @@ func _ready():
 	# 延迟查找玩家节点（确保场景已完全加载）
 	await get_tree().create_timer(0.1).timeout
 	
-	# 查找玩家节点
-	player = get_tree().get_first_node_in_group("player")
+	# 查找玩家节点：
+	# - 在线模式：必须以 local_player 为准（否则多人时 get_first_node_in_group("player") 不稳定）
+	# - 单机模式：使用 group 查找即可
+	if "current_mode_id" in GameMain and GameMain.current_mode_id == "online":
+		player = NetworkPlayerManager.local_player
+	else:
+		player = get_tree().get_first_node_in_group("player")
 	
 	if not player:
 		print("[PlayerStatsInfo] 警告：未找到玩家节点")

@@ -1,0 +1,312 @@
+[gd_scene load_steps=12 format=3 uid="uid://dqxkm7y8f2h1o"]
+
+[ext_resource type="Script" uid="uid://c2tqxjk8nfh3p" path="res://Scripts/UI/game_ui_online.gd" id="1_online_ui"]
+[ext_resource type="FontFile" uid="uid://dc6bkofr1if2e" path="res://assets/fonts/CangErYuYangTiW05-2.ttf" id="2_wave_font"]
+[ext_resource type="Script" uid="uid://bgraqcbpydou6" path="res://Scripts/UI/dash_ui.gd" id="3_dash_ui"]
+[ext_resource type="Script" uid="uid://cljkxwaoks3ai" path="res://Scripts/UI/skill_icon.gd" id="4_skill_icon"]
+[ext_resource type="Texture2D" uid="uid://cdgw3r2x4s6xu" path="res://assets/UI/game_ui/bg-icon-01.png" id="5_bg_icon"]
+[ext_resource type="Texture2D" uid="uid://b4jvdqrxsfhbm" path="res://assets/UI/game_ui/skill-dash-123-01.png" id="6_dash_icon"]
+[ext_resource type="Texture2D" uid="uid://83wa773ks6hh" path="res://assets/UI/game_ui/icon-lmb.png" id="7_lmb_icon"]
+[ext_resource type="Texture2D" uid="uid://2lva8wut6pmt" path="res://assets/UI/game_ui/lcom-rmb.png" id="8_rmb_icon"]
+[ext_resource type="Texture2D" uid="uid://bijoqd3cifawg" path="res://assets/UI/game_ui/icon-skill2-01.png" id="9_skill_icon"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.1, 0.1, 0.15, 0)
+border_width_left = 0
+border_width_top = 0
+border_width_right = 0
+border_width_bottom = 0
+border_color = Color(0.3, 0.3, 0.4, 0)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+shadow_color = Color(0, 0, 0, 0)
+shadow_size = 0
+shadow_offset = Vector2(0, 0)
+
+[node name="GameUIOnline" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_online_ui")
+
+[node name="PlayersPanel" type="PanelContainer" parent="."]
+offset_left = 50.0
+offset_top = 50.0
+offset_right = 560.0
+offset_bottom = 146.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="MarginContainer" type="MarginContainer" parent="PlayersPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PlayersPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="PlayersPanel/MarginContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.95, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 24
+text = "玩家列表"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="PlayersPanel/MarginContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="PlayersContainer" type="VBoxContainer" parent="PlayersPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="ServerInfoLabel" type="Label" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -250.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 50.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.7)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 18
+text = "服务器信息"
+horizontal_alignment = 2
+
+[node name="WaveInfo" type="MarginContainer" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -223.5
+offset_top = 50.0
+offset_right = 223.5
+offset_bottom = 99.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+
+[node name="WaveLabel" type="Label" parent="WaveInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("2_wave_font")
+theme_override_font_sizes/font_size = 40
+text = ""
+horizontal_alignment = 1
+
+[node name="SkillIcon" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 1698.0
+offset_top = -157.0
+offset_right = 1798.0
+offset_bottom = -57.0
+grow_vertical = 0
+script = ExtResource("4_skill_icon")
+
+[node name="bg_Icon" type="TextureRect" parent="SkillIcon"]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 100.0
+texture = ExtResource("5_bg_icon")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="Icon" type="TextureRect" parent="SkillIcon"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 50.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("9_skill_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CDMask" type="TextureRect" parent="SkillIcon"]
+unique_name_in_owner = true
+self_modulate = Color(1, 1, 1, 0.75686276)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 200.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.4, 0.4)
+mouse_filter = 2
+texture = ExtResource("5_bg_icon")
+expand_mode = 2
+
+[node name="CDText" type="Label" parent="SkillIcon"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -35.0
+offset_right = 50.0
+offset_bottom = 35.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 50
+text = "5"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NameLabel" type="Label" parent="SkillIcon"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.0
+offset_top = -41.0
+offset_right = 50.0
+offset_bottom = -11.0
+grow_horizontal = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 30
+text = "技能"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Skill_des" type="Label" parent="SkillIcon"]
+visible = false
+layout_mode = 0
+offset_left = 120.0
+offset_top = -9.0
+offset_right = 214.0
+offset_bottom = 118.0
+text = "持续时间：
+Cooldown：
+技能效果：
+1.
+2."
+
+[node name="KeyIcon" type="TextureRect" parent="SkillIcon"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -19.0
+offset_top = -29.0
+offset_right = 38.0
+offset_bottom = 28.0
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("8_rmb_icon")
+
+[node name="Dash_ui" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1560.0
+offset_top = 923.0
+offset_right = 1660.0
+offset_bottom = 1023.0
+script = ExtResource("3_dash_ui")
+
+[node name="bg_Icon" type="TextureRect" parent="Dash_ui"]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 100.0
+texture = ExtResource("5_bg_icon")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="Icon" type="TextureRect" parent="Dash_ui"]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 100.0
+texture = ExtResource("6_dash_icon")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="CDMask" type="TextureRect" parent="Dash_ui"]
+self_modulate = Color(1, 1, 1, 0.93333334)
+layout_mode = 0
+offset_right = 250.0
+offset_bottom = 250.0
+scale = Vector2(0.4, 0.4)
+mouse_filter = 2
+texture = ExtResource("5_bg_icon")
+
+[node name="CDText" type="Label" parent="Dash_ui"]
+layout_mode = 0
+offset_left = 23.0
+offset_top = 10.0
+offset_right = 80.0
+offset_bottom = 79.0
+theme_override_font_sizes/font_size = 50
+text = "5"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NameLabel" type="Label" parent="Dash_ui"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = -41.0
+offset_right = 87.0
+offset_bottom = 1.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 30
+text = "Dash"
+
+[node name="KeyIcon" type="TextureRect" parent="Dash_ui"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -19.0
+offset_top = -29.0
+offset_right = 38.0
+offset_bottom = 28.0
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("7_lmb_icon")
+

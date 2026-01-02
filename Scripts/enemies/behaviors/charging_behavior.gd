@@ -76,6 +76,12 @@ func _on_initialize() -> void:
 
 func _on_update(delta: float) -> void:
 	if not enemy or enemy.is_dead:
+		# 敌人死亡时隐藏指示器
+		_hide_indicator()
+		return
+	
+	# 联网模式下，客户端不执行冲刺逻辑（由服务器控制）
+	if GameMain.current_mode_id == "online" and not NetworkManager.is_server():
 		return
 	
 	state_timer -= delta
@@ -212,6 +218,10 @@ func is_charging_now() -> bool:
 
 ## 指示器相关
 func _create_indicator() -> void:
+	# 联网模式下，客户端不创建本地指示器（由服务器通过 RPC 同步）
+	if GameMain.current_mode_id == "online" and not NetworkManager.is_server():
+		return
+	
 	if is_instance_valid(indicator_node):
 		return
 	
@@ -261,6 +271,36 @@ func _show_indicator() -> void:
 				anim_sprite.play(indicator_animation)
 		
 		_update_indicator()
+	
+	# 联网模式：服务器广播给客户端
+	if GameMain.current_mode_id == "online" and NetworkManager.is_server() and enemy:
+		var player = get_player()
+		if player:
+			var enemy_path = str(enemy.get_path())
+			# 获取实际使用的纹理路径
+			var texture_path = ""
+			var sprite_frames_path = ""
+			var anim_name = indicator_animation
+			
+			if indicator_sprite_frames != null:
+				# 使用动画帧，尝试获取资源路径
+				sprite_frames_path = indicator_sprite_frames.resource_path
+			elif indicator_texture != null:
+				# 使用静态纹理
+				texture_path = indicator_texture.resource_path
+			else:
+				# 使用默认纹理
+				texture_path = DEFAULT_INDICATOR_TEXTURE_PATH
+			
+			NetworkPlayerManager.broadcast_show_charge_indicator(
+				enemy_path,
+				enemy.global_position,
+				player.global_position,
+				indicator_scale,
+				texture_path,
+				sprite_frames_path,
+				anim_name
+			)
 
 func _hide_indicator() -> void:
 	if is_instance_valid(indicator_node):
@@ -269,6 +309,11 @@ func _hide_indicator() -> void:
 		# 如果是动画指示器，停止动画
 		if indicator_node is AnimatedSprite2D:
 			(indicator_node as AnimatedSprite2D).stop()
+	
+	# 联网模式：服务器广播给客户端
+	if GameMain.current_mode_id == "online" and NetworkManager.is_server() and enemy:
+		var enemy_path = str(enemy.get_path())
+		NetworkPlayerManager.broadcast_hide_charge_indicator(enemy_path)
 
 func _update_indicator() -> void:
 	if not is_instance_valid(indicator_node) or not indicator_node.visible or not enemy:
@@ -284,3 +329,12 @@ func _update_indicator() -> void:
 	# 更新朝向
 	var dir = (player.global_position - enemy.global_position).normalized()
 	indicator_node.rotation = dir.angle()
+	
+	# 联网模式：服务器广播给客户端
+	if GameMain.current_mode_id == "online" and NetworkManager.is_server():
+		var enemy_path = str(enemy.get_path())
+		NetworkPlayerManager.broadcast_update_charge_indicator(
+			enemy_path,
+			enemy.global_position,
+			player.global_position
+		)

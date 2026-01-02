@@ -1,0 +1,783 @@
+{
+  "config_id": "online",
+  "total_waves": 15,
+  "waves": [
+	{
+	  "wave": 1,
+	  "base_config": {
+		"hp_growth": 0.0,
+		"damage_growth": 0.0,
+		"min_alive_enemies": 3,
+		"max_alive_enemies": 10
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 2,
+		  "spawn_interval": 0.8,
+		  "total_count": 15,
+		  "enemy_types": {
+			"creeper": 1.0
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "creeper_fast"
+	  }
+	},
+	{
+	  "wave": 2,
+	  "base_config": {
+		"hp_growth": 0.2,
+		"damage_growth": 0.1,
+		"min_alive_enemies": 3,
+		"max_alive_enemies": 11
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 2,
+		  "spawn_interval": 0.7,
+		  "total_count": 20,
+		  "enemy_types": {
+			"creeper": 0.7,
+			"creeper_fast": 0.3
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "jug_melee"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 10,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 12,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	},
+	{
+	  "wave": 3,
+	  "base_config": {
+		"hp_growth": 0.4,
+		"damage_growth": 0.2,
+		"min_alive_enemies": 4,
+		"max_alive_enemies": 13
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 2,
+		  "spawn_interval": 0.96,
+		  "total_count": 9,
+		  "enemy_types": {
+			"creeper": 0.65,
+			"creeper_fast": 0.3,
+			"jug_melee": 0.05
+		  }
+		},
+		{
+		  "spawn_per_time": 2,
+		  "spawn_interval": 0.96,
+		  "total_count": 16,
+		  "enemy_types": {
+			"creeper": 0.65,
+			"creeper_fast": 0.3
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "stapler_melee"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 12,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 13,
+		  "enemy_id": "tree_xmas",
+		  "spawn_chance": 0.1
+		},
+		{
+		  "position": 14,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	},
+	{
+	  "wave": 4,
+	  "base_config": {
+		"hp_growth": 0.6,
+		"damage_growth": 0.3,
+		"min_alive_enemies": 4,
+		"max_alive_enemies": 14
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 3,
+		  "spawn_interval": 0.75,
+		  "total_count": 11,
+		  "enemy_types": {
+			"creeper": 0.6,
+			"creeper_fast": 0.35,
+			"jug_melee": 0.05
+		  }
+		},
+		{
+		  "spawn_per_time": 3,
+		  "spawn_interval": 0.92,
+		  "total_count": 19,
+		  "enemy_types": {
+			"creeper": 0.6,
+			"creeper_fast": 0.35
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "stapler_melee"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 15,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 16,
+		  "enemy_id": "tree_xmas",
+		  "spawn_chance": 0.1
+		},
+		{
+		  "position": 17,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	},
+	{
+	  "wave": 5,
+	  "base_config": {
+		"hp_growth": 0.8,
+		"damage_growth": 0.4,
+		"min_alive_enemies": 5,
+		"max_alive_enemies": 16
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 3,
+		  "spawn_interval": 0.9,
+		  "total_count": 13,
+		  "enemy_types": {
+			"creeper": 0.6,
+			"creeper_fast": 0.25
+		  }
+		},
+		{
+		  "spawn_per_time": 3,
+		  "spawn_interval": 0.9,
+		  "total_count": 22,
+		  "enemy_types": {
+			"creeper": 0.6,
+			"creeper_fast": 0.25,
+			"jug_melee": 0.15
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "monitor"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 17,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 18,
+		  "enemy_id": "tree_xmas",
+		  "spawn_chance": 0.1
+		},
+		{
+		  "position": 19,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	},
+	{
+	  "wave": 6,
+	  "base_config": {
+		"hp_growth": 1.0,
+		"damage_growth": 0.5,
+		"min_alive_enemies": 5,
+		"max_alive_enemies": 17
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 3,
+		  "spawn_interval": 0.88,
+		  "total_count": 15,
+		  "enemy_types": {
+			"creeper": 0.6,
+			"creeper_fast": 0.25,
+			"jug_melee": 0.1
+		  }
+		},
+		{
+		  "spawn_per_time": 3,
+		  "spawn_interval": 0.8,
+		  "total_count": 25,
+		  "enemy_types": {
+			"creeper": 0.6,
+			"creeper_fast": 0.25,
+			"stapler": 0.05
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "jug_boss"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 20,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 21,
+		  "enemy_id": "tree_xmas",
+		  "spawn_chance": 0.1
+		},
+		{
+		  "position": 22,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	},
+	{
+	  "wave": 7,
+	  "base_config": {
+		"hp_growth": 1.2,
+		"damage_growth": 0.6,
+		"min_alive_enemies": 5,
+		"max_alive_enemies": 19
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 3,
+		  "spawn_interval": 0.86,
+		  "total_count": 16,
+		  "enemy_types": {
+			"creeper": 0.4,
+			"creeper_fast": 0.3,
+			"jug_melee": 0.1
+		  }
+		},
+		{
+		  "spawn_per_time": 3,
+		  "spawn_interval": 0.86,
+		  "total_count": 29,
+		  "enemy_types": {
+			"creeper": 0.4,
+			"creeper_fast": 0.3,
+			"jug_melee": 0.1,
+			"stapler": 0.1
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "jug_boss"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 22,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 23,
+		  "enemy_id": "tree_xmas",
+		  "spawn_chance": 0.1
+		},
+		{
+		  "position": 24,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	},
+	{
+	  "wave": 8,
+	  "base_config": {
+		"hp_growth": 1.4,
+		"damage_growth": 0.7,
+		"min_alive_enemies": 5,
+		"max_alive_enemies": 20
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 3,
+		  "spawn_interval": 0.84,
+		  "total_count": 18,
+		  "enemy_types": {
+			"creeper": 0.35,
+			"creeper_fast": 0.35,
+			"jug_melee": 0.1,
+			"jug": 0.1,
+			"stapler": 0.05
+		  }
+		},
+		{
+		  "spawn_per_time": 3,
+		  "spawn_interval": 0.84,
+		  "total_count": 32,
+		  "enemy_types": {
+			"creeper": 0.35,
+			"creeper_fast": 0.35,
+			"jug_melee": 0.1,
+			"jug": 0.1,
+			"powerbank": 0.05
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "jug_boss"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 25,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 26,
+		  "enemy_id": "tree_xmas",
+		  "spawn_chance": 0.1
+		},
+		{
+		  "position": 27,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	},
+	{
+	  "wave": 9,
+	  "base_config": {
+		"hp_growth": 1.6,
+		"damage_growth": 0.8,
+		"min_alive_enemies": 6,
+		"max_alive_enemies": 22
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 4,
+		  "spawn_interval": 0.82,
+		  "total_count": 20,
+		  "enemy_types": {
+			"creeper": 0.45,
+			"creeper_fast": 0.25,
+			"stapler_melee": 0.1,
+			"stapler": 0.1,
+			"jug": 0.05,
+			"powerbank": 0.05
+		  }
+		},
+		{
+		  "spawn_per_time": 4,
+		  "spawn_interval": 0.82,
+		  "total_count": 35,
+		  "enemy_types": {
+			"creeper": 0.45,
+			"creeper_fast": 0.25,
+			"jug_melee": 0.1,
+			"stapler_melee": 0.1,
+			"jug": 0.05
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "jug_boss"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 27,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 28,
+		  "enemy_id": "tree_xmas",
+		  "spawn_chance": 0.1
+		},
+		{
+		  "position": 29,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	},
+	{
+	  "wave": 10,
+	  "base_config": {
+		"hp_growth": 1.8,
+		"damage_growth": 0.9,
+		"min_alive_enemies": 6,
+		"max_alive_enemies": 23
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 4,
+		  "spawn_interval": 0.8,
+		  "total_count": 22,
+		  "enemy_types": {
+			"creeper": 0.3,
+			"creeper_fast": 0.25,
+			"stapler": 0.1,
+			"powerbank": 0.05
+		  }
+		},
+		{
+		  "spawn_per_time": 4,
+		  "spawn_interval": 0.8,
+		  "total_count": 38,
+		  "enemy_types": {
+			"creeper": 0.3,
+			"creeper_fast": 0.25,
+			"jug_melee": 0.15,
+			"jug": 0.15,
+			"stapler_melee": 0.1,
+			"powerbank": 0.05
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "monitor"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 30,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 31,
+		  "enemy_id": "tree_xmas",
+		  "spawn_chance": 0.1
+		},
+		{
+		  "position": 32,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	},
+	{
+	  "wave": 11,
+	  "base_config": {
+		"hp_growth": 2.0,
+		"damage_growth": 1.0,
+		"min_alive_enemies": 6,
+		"max_alive_enemies": 25
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 4,
+		  "spawn_interval": 0.78,
+		  "total_count": 24,
+		  "enemy_types": {
+			"creeper": 0.45,
+			"creeper_fast": 0.25,
+			"jug_melee": 0.15,
+			"stapler": 0.05,
+			"jug": 0.05
+		  }
+		},
+		{
+		  "spawn_per_time": 4,
+		  "spawn_interval": 0.78,
+		  "total_count": 41,
+		  "enemy_types": {
+			"creeper": 0.45,
+			"creeper_fast": 0.25,
+			"jug_melee": 0.15,
+			"jug": 0.05,
+			"powerbank": 0.05
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "jug_boss"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 32,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 33,
+		  "enemy_id": "tree_xmas",
+		  "spawn_chance": 0.1
+		},
+		{
+		  "position": 34,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	},
+	{
+	  "wave": 12,
+	  "base_config": {
+		"hp_growth": 2.2,
+		"damage_growth": 1.1,
+		"min_alive_enemies": 7,
+		"max_alive_enemies": 26
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 4,
+		  "spawn_interval": 0.76,
+		  "total_count": 26,
+		  "enemy_types": {
+			"creeper": 0.25,
+			"creeper_fast": 0.25,
+			"stapler_melee": 0.07,
+			"powerbank": 0.06
+		  }
+		},
+		{
+		  "spawn_per_time": 4,
+		  "spawn_interval": 0.76,
+		  "total_count": 44,
+		  "enemy_types": {
+			"creeper": 0.25,
+			"creeper_fast": 0.25,
+			"jug_green": 0.15,
+			"stapler_melee": 0.15,
+			"stapler": 0.07,
+			"jug": 0.07,
+			"powerbank": 0.06
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "stapler_red"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 35,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 36,
+		  "enemy_id": "tree_xmas",
+		  "spawn_chance": 0.1
+		},
+		{
+		  "position": 37,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	},
+	{
+	  "wave": 13,
+	  "base_config": {
+		"hp_growth": 2.4,
+		"damage_growth": 1.2,
+		"min_alive_enemies": 7,
+		"max_alive_enemies": 28
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 4,
+		  "spawn_interval": 0.74,
+		  "total_count": 28,
+		  "enemy_types": {
+			"creeper": 0.25,
+			"creeper_fast": 0.25,
+			"jug_melee": 0.15,
+			"jug_green": 0.15,
+			"jug": 0.07,
+			"powerbank": 0.06
+		  }
+		},
+		{
+		  "spawn_per_time": 4,
+		  "spawn_interval": 0.74,
+		  "total_count": 47,
+		  "enemy_types": {
+			"creeper": 0.25,
+			"creeper_fast": 0.25,
+			"stapler_melee": 0.15,
+			"jug_green": 0.15,
+			"stapler": 0.07,
+			"jug": 0.07,
+			"powerbank": 0.06
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "stapler_red"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 37,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 38,
+		  "enemy_id": "tree_xmas",
+		  "spawn_chance": 0.1
+		},
+		{
+		  "position": 39,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	},
+	{
+	  "wave": 14,
+	  "base_config": {
+		"hp_growth": 2.6,
+		"damage_growth": 1.3,
+		"min_alive_enemies": 7,
+		"max_alive_enemies": 27
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 5,
+		  "spawn_interval": 0.72,
+		  "total_count": 30,
+		  "enemy_types": {
+			"creeper": 0.25,
+			"creeper_fast": 0.25,
+			"jug_melee": 0.15,
+			"jug_green": 0.15,
+			"stapler": 0.07,
+			"jug": 0.07,
+			"powerbank": 0.06
+		  }
+		},
+		{
+		  "spawn_per_time": 5,
+		  "spawn_interval": 0.72,
+		  "total_count": 50,
+		  "enemy_types": {
+			"creeper": 0.25,
+			"creeper_fast": 0.25,
+			"jug_melee": 0.15,
+			"jug_green": 0.15,
+			"stapler": 0.07,
+			"stapler_melee": 0.07,
+			"powerbank": 0.06
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "stapler_red"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 40,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 41,
+		  "enemy_id": "tree_xmas",
+		  "spawn_chance": 0.1
+		},
+		{
+		  "position": 42,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	},
+	{
+	  "wave": 15,
+	  "base_config": {
+		"hp_growth": 2.8,
+		"damage_growth": 1.4,
+		"min_alive_enemies": 8,
+		"max_alive_enemies": 29
+	  },
+	  "spawn_phases": [
+		{
+		  "spawn_per_time": 5,
+		  "spawn_interval": 0.7,
+		  "total_count": 31,
+		  "enemy_types": {
+			"creeper": 0.2,
+			"creeper_fast": 0.35,
+			"jug_melee": 0.15,
+			"stapler": 0.07,
+			"jug": 0.07,
+			"powerbank": 0.06
+		  }
+		},
+		{
+		  "spawn_per_time": 5,
+		  "spawn_interval": 0.7,
+		  "total_count": 54,
+		  "enemy_types": {
+			"creeper": 0.2,
+			"creeper_fast": 0.25,
+			"jug_melee": 0.15,
+			"jug_green": 0.2,
+			"stapler": 0.07,
+			"stapler_melee": 0.07,
+			"powerbank": 0.06
+		  }
+		}
+	  ],
+	  "boss_config": {
+		"count": 1,
+		"enemy_id": "monitor"
+	  },
+	  "special_spawns": [
+		{
+		  "position": 42,
+		  "enemy_id": "bee_xmas",
+		  "spawn_chance": 0.33
+		},
+		{
+		  "position": 43,
+		  "enemy_id": "tree_xmas",
+		  "spawn_chance": 0.1
+		},
+		{
+		  "position": 44,
+		  "enemy_id": "mashroom_xmas",
+		  "spawn_chance": 0.25
+		}
+	  ]
+	}
+  ]
+}

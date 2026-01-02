@@ -1,0 +1,89 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/room_ui_online.gd" id="1_script"]
+
+[node name="RoomUIOnline" type="CanvasLayer"]
+layer = 100
+script = ExtResource("1_script")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.1, 0.9)
+
+[node name="Container" type="VBoxContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -250.0
+offset_right = 300.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="TitleLabel" type="Label" parent="Control/Container"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 52
+text = "等待玩家加入..."
+horizontal_alignment = 1
+
+[node name="Separator1" type="HSeparator" parent="Control/Container"]
+layout_mode = 2
+theme_override_styles/separator = null
+
+[node name="PlayerListTitle" type="Label" parent="Control/Container"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "已加入的玩家:"
+horizontal_alignment = 1
+
+[node name="PlayerList" type="VBoxContainer" parent="Control/Container"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Separator2" type="HSeparator" parent="Control/Container"]
+layout_mode = 2
+
+[node name="StatusLabel" type="Label" parent="Control/Container"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 1, 0.5, 1)
+theme_override_font_sizes/font_size = 36
+text = "0/4 玩家"
+horizontal_alignment = 1
+
+[node name="HintLabel" type="Label" parent="Control/Container"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 20
+text = "等待更多玩家加入，人满后自动开始"
+horizontal_alignment = 1
+
+[node name="ForceStartButton" type="Button" parent="Control/Container"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "强制开始游戏"
+

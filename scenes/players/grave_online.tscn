@@ -1,0 +1,67 @@
+[gd_scene load_steps=6 format=3 uid="uid://b4o4wso6uh13i"]
+
+[ext_resource type="Script" path="res://Scripts/players/grave_online.gd" id="1_grave_online"]
+[ext_resource type="Texture2D" uid="uid://cseowr16wdmhf" path="res://assets/others/grave-01.png" id="2_grave_tex"]
+[ext_resource type="Texture2D" uid="uid://dooyvs01c4e0g" path="res://assets/others/rescue_range_circle.png" id="3_range_circle"]
+[ext_resource type="FontFile" uid="uid://dc6bkofr1if2e" path="res://assets/fonts/CangErYuYangTiW05-2.ttf" id="4_font"]
+[ext_resource type="StyleBox" uid="uid://35yat2jexibx" path="res://scenes/UI/class_state_bar_bg.tres" id="5_bar_bg"]
+[ext_resource type="StyleBox" uid="uid://ed2fpeb8vfie" path="res://scenes/UI/class_state_bar_fill.tres" id="6_bar_fill"]
+
+[node name="GraveOnline" type="Node2D"]
+z_index = 20
+script = ExtResource("1_grave_online")
+
+[node name="RangeCircle" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 1, 0.5)
+z_index = 1
+texture = ExtResource("3_range_circle")
+visible = false
+
+[node name="GraveSprite" type="Sprite2D" parent="."]
+z_index = 20
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("2_grave_tex")
+
+[node name="NameLabel" type="Label" parent="GraveSprite"]
+z_index = 100
+offset_left = -350.0
+offset_top = -330.0
+offset_right = 350.0
+offset_bottom = -260.0
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.9, 0.9, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 60
+text = "玩家名字"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+visible = false
+z_index = 100
+offset_left = -67.0
+offset_top = -124.0
+offset_right = 83.0
+offset_bottom = -104.0
+theme_override_styles/background = ExtResource("5_bar_bg")
+theme_override_styles/fill = ExtResource("6_bar_fill")
+value = 0.0
+show_percentage = false
+
+[node name="TimeLabel" type="Label" parent="ProgressBar"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -19.0
+offset_top = -30.0
+offset_right = 21.0
+offset_bottom = 4.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 24
+text = "3.0"
+horizontal_alignment = 1

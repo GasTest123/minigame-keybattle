@@ -4,6 +4,8 @@ var animation_scene = preload("res://scenes/animations/animations.tscn")
 var animation_scene_obj = null
 var drop_item_scene = preload("res://scenes/items/drop_items.tscn")
 var drop_item_scene_obj = null
+var drop_item_scene_online = preload("res://scenes/items/drop_items_online.tscn")
+var drop_item_scene_online_obj = null
 
 var duplicate_node = null
 var current_session: GameSession = null
@@ -14,7 +16,9 @@ func _ready():
 	#add_child(animation_scene_obj)
 	drop_item_scene_obj = drop_item_scene.instantiate()
 	#add_child(drop_item_scene_obj)
-	
+	drop_item_scene_online_obj = drop_item_scene_online.instantiate()
+	#add_child(drop_item_scene_online_obj)
+
 	# 初始化战斗特效管理器（预加载所有特效）
 	CombatEffectManager.initialize()
 	

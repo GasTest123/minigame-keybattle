@@ -98,6 +98,10 @@ func _on_update(delta: float) -> void:
 	if not enemy or enemy.is_dead:
 		return
 	
+	# 联网模式下，客户端不执行爆炸逻辑（由服务器控制）
+	if GameMain.current_mode_id == "online" and not NetworkManager.is_server():
+		return
+	
 	match state:
 		ExplodeState.IDLE:
 			# 根据触发条件检查
@@ -173,6 +177,11 @@ func _update_countdown(delta: float) -> void:
 	if range_indicator:
 		range_indicator.global_position = enemy.global_position
 	
+	# 联网模式：服务器广播位置更新给客户端
+	if GameMain.current_mode_id == "online" and NetworkManager.is_server():
+		var enemy_path = str(enemy.get_path())
+		NetworkPlayerManager.broadcast_update_explode_indicator(enemy_path, enemy.global_position)
+	
 	# 更新闪烁效果
 	flash_timer += delta
 	if flash_timer >= flash_interval:
@@ -198,6 +207,11 @@ func _update_flash_effect() -> void:
 		# 恢复正常
 		sprite.material.set_shader_parameter("flash_color",Color(1.0, 1.0, 1.0, 1.0) )
 		sprite.material.set_shader_parameter("flash_opacity", 0.0)
+	
+	# 联网模式：服务器广播闪烁状态给客户端
+	if GameMain.current_mode_id == "online" and NetworkManager.is_server():
+		var enemy_path = str(enemy.get_path())
+		NetworkPlayerManager.broadcast_enemy_flash(enemy_path, is_flashing)
 
 ## 执行爆炸
 func _explode() -> void:
@@ -281,6 +295,10 @@ func _do_die() -> void:
 
 ## 创建范围指示器节点（使用预加载的纹理，与grave_rescue_manager一致）
 func _create_range_indicator() -> void:
+	# 联网模式下，客户端不创建本地指示器（由服务器通过 RPC 同步）
+	if GameMain.current_mode_id == "online" and not NetworkManager.is_server():
+		return
+	
 	if range_indicator:
 		return
 	
@@ -320,11 +338,25 @@ func _show_range_indicator() -> void:
 		range_indicator.visible = true
 		if enemy:
 			range_indicator.global_position = enemy.global_position
+	
+	# 联网模式：服务器广播给客户端
+	if GameMain.current_mode_id == "online" and NetworkManager.is_server() and enemy:
+		var enemy_path = str(enemy.get_path())
+		NetworkPlayerManager.broadcast_show_explode_indicator(
+			enemy_path,
+			enemy.global_position,
+			explosion_range
+		)
 
 ## 隐藏范围指示器
 func _hide_range_indicator() -> void:
 	if range_indicator:
 		range_indicator.visible = false
+	
+	# 联网模式：服务器广播给客户端
+	if GameMain.current_mode_id == "online" and NetworkManager.is_server() and enemy:
+		var enemy_path = str(enemy.get_path())
+		NetworkPlayerManager.broadcast_hide_explode_indicator(enemy_path)
 
 ## 播放自定义爆炸特效
 func _play_explode_fx(pos: Vector2) -> void:
@@ -336,7 +368,12 @@ func _play_explode_fx(pos: Vector2) -> void:
 		push_warning("[ExplodingBehavior] 特效资源中没有动画: " + explode_fx_animation)
 		return
 	
-	# 创建特效节点
+	# 联网模式：服务器广播特效给客户端
+	if GameMain.current_mode_id == "online" and NetworkManager.is_server():
+		var sprite_frames_path = explode_fx_sprite_frames.resource_path
+		NetworkPlayerManager.broadcast_explode_fx(pos, sprite_frames_path, explode_fx_animation, explode_fx_scale)
+	
+	# 创建特效节点（服务器本地也创建）
 	var fx_node = AnimatedSprite2D.new()
 	fx_node.sprite_frames = explode_fx_sprite_frames
 	fx_node.global_position = pos
@@ -366,7 +403,11 @@ func _play_explode_fx(pos: Vector2) -> void:
 
 ## 创建爆炸效果
 func _create_explosion_effect(pos: Vector2) -> void:
-	# 使用统一的特效管理器播放自爆特效
+	# 联网模式：服务器广播通用爆炸效果给客户端
+	if GameMain.current_mode_id == "online" and NetworkManager.is_server():
+		NetworkPlayerManager.broadcast_enemy_explosion(pos, 1.5)
+	
+	# 使用统一的特效管理器播放自爆特效（服务器本地也播放）
 	CombatEffectManager.play_enemy_explosion(pos, 1.5)
 	
 	# 震动屏幕

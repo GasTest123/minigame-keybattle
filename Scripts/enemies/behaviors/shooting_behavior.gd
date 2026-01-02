@@ -243,6 +243,12 @@ func _calculate_spread_angles() -> Array[float]:
 
 ## 生成一颗子弹
 func _spawn_bullet(pos: Vector2, direction: Vector2) -> void:
+	# 联网模式：通过 NetworkPlayerManager 广播子弹
+	if GameMain.current_mode_id == "online":
+		NetworkPlayerManager.broadcast_enemy_bullet(pos, direction, bullet_speed, bullet_damage, bullet_id, bullet_scene_path)
+		return
+	
+	# 单机模式：直接生成子弹
 	var bullet = bullet_scene.instantiate()
 	if not bullet:
 		push_error("[ShootingBehavior] 无法实例化子弹")

@@ -147,8 +147,14 @@ func _play_muzzle_effect(bullet_data: BulletData, direction: Vector2) -> void:
 	
 	# 计算朝向角度
 	var rotation_angle = direction.angle()
+
+	# 联网模式：
+	# - 客户端枪口特效由 NetworkPlayerManager.rpc_spawn_bullet_visual 在本地播放（与每颗子弹一一对应）
+	# - 这里保留服务器本地播放（服务器观察/录制用），避免 online 下服务器完全没有枪口反馈
+	if GameMain.current_mode_id == "online" and not NetworkManager.is_server():
+		return
 	
-	# 调用 CombatEffectManager 播放特效，绑定到 shoot_pos 上跟随武器移动
+	# 单机模式：本地直接播放，绑定到 shoot_pos 上跟随武器移动
 	CombatEffectManager.play_muzzle_flash(
 		bullet_data.muzzle_effect_scene_path,
 		bullet_data.muzzle_effect_ani_name,
@@ -213,6 +219,20 @@ func _spawn_bullet(direction: Vector2, damage: int, is_critical: bool, bullet_da
 	if not bullet_scene or not weapon:
 		return
 	
+	# 联网模式：通过 NetworkPlayerManager 广播子弹（服务器处理伤害，客户端只显示）
+	if GameMain.current_mode_id == "online":
+		NetworkPlayerManager.broadcast_spawn_bullet(
+			shoot_pos.global_position,
+			direction,
+			damage,
+			is_critical,
+			weapon.owner_peer_id,
+			get_bullet_id(),
+			get_pierce_count()
+		)
+		return
+	
+	# 单机模式：直接生成子弹
 	var bullet = bullet_scene.instantiate()
 	weapon.get_tree().root.add_child(bullet)
 	

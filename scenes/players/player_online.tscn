@@ -1,0 +1,180 @@
+[gd_scene load_steps=17 format=3 uid="uid://cyt7rw3e5mhxy"]
+
+[ext_resource type="Script" uid="uid://la8ovw1c7vcc" path="res://Scripts/players/player_online.gd" id="1_online"]
+[ext_resource type="Texture2D" uid="uid://cfe43qhbq2h15" path="res://assets/others/shadow.png" id="2_edvpf"]
+[ext_resource type="PackedScene" uid="uid://do0rhoe37j1sv" path="res://scenes/players/player_speech_bubble.tscn" id="2_sguum"]
+[ext_resource type="Script" uid="uid://fqudu87a8guo" path="res://Scripts/players/trail.gd" id="3_edvpf"]
+[ext_resource type="PackedScene" uid="uid://cgu6bmn3yknnu" path="res://scenes/weapons/now_weapons.tscn" id="3_kc87p"]
+[ext_resource type="Texture2D" uid="uid://bbb22hdwja8mq" path="res://FX/light_test.png" id="5_olb2f"]
+[ext_resource type="SpriteFrames" uid="uid://24l7dlf0kn0e" path="res://resources/player/player_FX.tres" id="6_skill_fx"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_kc87p"]
+load_path = "res://.godot/imported/player1-sheet.png-57d31d2b924831737743db6eecd0d6e7.ctex"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_edvpf"]
+atlas = SubResource("CompressedTexture2D_kc87p")
+region = Rect2(0, 0, 130, 240)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_olb2f"]
+atlas = SubResource("CompressedTexture2D_kc87p")
+region = Rect2(130, 0, 130, 240)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sguum"]
+atlas = SubResource("CompressedTexture2D_kc87p")
+region = Rect2(260, 0, 130, 240)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jwv1m"]
+atlas = SubResource("CompressedTexture2D_kc87p")
+region = Rect2(390, 0, 130, 240)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_5iv5l"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_edvpf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_olb2f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sguum")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jwv1m")
+}],
+"loop": true,
+"name": &"default",
+"speed": 8.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_sguum"]
+radius = 58.333332
+height = 234.00002
+
+[sub_resource type="Curve" id="Curve_edvpf"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.9939759, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_kc87p"]
+radius = 588.67316
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_online"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = false
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:velocity")
+properties/1/spawn = false
+properties/1/replication_mode = 2
+properties/2/path = NodePath("AnimatedSprite2D:flip_h")
+properties/2/spawn = false
+properties/2/replication_mode = 2
+properties/3/path = NodePath(".:now_hp")
+properties/3/spawn = false
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:max_hp")
+properties/4/spawn = false
+properties/4/replication_mode = 2
+properties/5/path = NodePath(".:gold")
+properties/5/spawn = false
+properties/5/replication_mode = 2
+properties/6/path = NodePath(".:master_key")
+properties/6/spawn = false
+properties/6/replication_mode = 2
+properties/7/path = NodePath(".:display_name")
+properties/7/spawn = false
+properties/7/replication_mode = 2
+properties/8/path = NodePath(".:player_class_id")
+properties/8/spawn = false
+properties/8/replication_mode = 2
+properties/9/path = NodePath(".:player_role_id")
+properties/9/spawn = false
+properties/9/replication_mode = 2
+properties/10/path = NodePath(".:peer_id")
+properties/10/spawn = true
+properties/10/replication_mode = 2
+
+[node name="player_online" type="CharacterBody2D" groups=["player"]]
+z_index = 10
+scale = Vector2(0.6, 0.6)
+collision_layer = 1
+collision_mask = 2
+script = ExtResource("1_online")
+
+[node name="PlayerSpeechBubble" parent="." instance=ExtResource("2_sguum")]
+z_index = 98
+offset_left = -104.99999
+offset_top = -288.3333
+offset_right = 95.00001
+offset_bottom = -228.33331
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.11372549, 0.11372549, 0.11372549, 0.7254902)
+z_index = 1
+position = Vector2(-10.000001, 91.666664)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("2_edvpf")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
+z_index = 5
+position = Vector2(-10, -24.999989)
+sprite_frames = SubResource("SpriteFrames_5iv5l")
+autoplay = "default"
+frame_progress = 0.5189973
+
+[node name="skill-FX" type="AnimatedSprite2D" parent="."]
+visible = false
+z_index = 6
+scale = Vector2(3.1875, 3)
+sprite_frames = ExtResource("6_skill_fx")
+animation = &"skill"
+offset = Vector2(0, 23.95)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-11.666668, -15.33334)
+shape = SubResource("CapsuleShape2D_sguum")
+debug_color = Color(0.5792219, 0.38419825, 1, 0.41960785)
+
+[node name="Trail" type="Line2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(-36.666664, 70)
+width = 40.0
+width_curve = SubResource("Curve_edvpf")
+default_color = Color(1, 1, 0.6509804, 0.40392157)
+script = ExtResource("3_edvpf")
+
+[node name="Camera2D" type="Camera2D" parent="." groups=["camera"]]
+zoom = Vector2(0.9, 0.9)
+position_smoothing_enabled = true
+
+[node name="stop" type="Area2D" parent="."]
+collision_mask = 0
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="stop"]
+position = Vector2(-11.666668, -15.333341)
+shape = SubResource("CapsuleShape2D_sguum")
+
+[node name="now_weapons" parent="." instance=ExtResource("3_kc87p")]
+
+[node name="drop_item_area" type="Area2D" parent="."]
+collision_mask = 16
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="drop_item_area"]
+shape = SubResource("CircleShape2D_kc87p")
+debug_color = Color(0.74976915, 0.42916626, 9.62615e-07, 0.41960785)
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+scale = Vector2(2.643229, 2.3177083)
+energy = 0.55
+shadow_enabled = true
+shadow_color = Color(0.05490196, 0.05490196, 0.05490196, 0.5137255)
+texture = ExtResource("5_olb2f")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_online")
+
+[connection signal="area_entered" from="stop" to="." method="_on_stop_area_entered"]
+[connection signal="mouse_entered" from="stop" to="." method="_on_stop_mouse_entered"]
+[connection signal="mouse_exited" from="stop" to="." method="_on_stop_mouse_exited"]
+[connection signal="area_entered" from="drop_item_area" to="." method="_on_drop_item_area_area_entered"]
+

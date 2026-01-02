@@ -34,6 +34,8 @@ ApiManager="*res://Scripts/managers/api_manager.gd"
 SaveManager="*res://Scripts/managers/save_manager.gd"
 GhostDatabase="*res://Scripts/data/ghost_database.gd"
 LeaderboardManager="*res://Scripts/managers/leaderboard_manager.gd"
+NetworkManager="*res://Scripts/managers/network_manager.gd"
+NetworkPlayerManager="*res://Scripts/managers/network_player_manager.gd"
 
 [display]
 

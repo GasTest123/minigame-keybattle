@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://2c22xti4q7dv"]
+
+[ext_resource type="Script" uid="uid://bl1s5yj4tncr6" path="res://Scripts/items/drop_items_online.gd" id="1_ig1p0"]
+[ext_resource type="SpriteFrames" uid="uid://diw3ryvltjp70" path="res://resources/items/drop_items.tres" id="2_65e0c"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_lyloc"]
+radius = 55.0
+
+[node name="drop_item" type="Area2D" groups=["drop_item"]]
+z_index = 22
+collision_layer = 16
+collision_mask = 0
+script = ExtResource("1_ig1p0")
+
+[node name="all_animation" type="AnimatedSprite2D" parent="."]
+z_index = 10
+rotation = -1.5707964
+sprite_frames = ExtResource("2_65e0c")
+animation = &"gold"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+z_index = 13
+shape = SubResource("CircleShape2D_lyloc")

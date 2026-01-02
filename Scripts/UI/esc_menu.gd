@@ -175,6 +175,13 @@ func show_menu() -> void:
 	# 暂停游戏 - 由 GameState 管理
 	# get_tree().paused = true
 	
+	# 联机模式下不暂停整个场景，只显示菜单
+	if GameMain.current_mode_id == "online":
+		get_tree().paused = false
+		if restart_button:
+			restart_button.visible = false
+			restart_button.disabled = true
+
 	# 显示菜单
 	show()
 	visible = true
@@ -284,7 +291,10 @@ func _on_main_menu_pressed() -> void:
 func _return_to_main_menu() -> void:
 	# 恢复游戏（必须在切换场景前）
 	get_tree().paused = false
-	
+
+	# 联机模式主动断开网络连接
+	_stop_connection()
+
 	# 停止计时器（最高波次记录已在波次完成时统一处理）
 	_stop_timer_on_exit()
 	
@@ -443,3 +453,12 @@ func _format_time_chinese(seconds: float) -> String:
 	var mins = total_seconds / 60
 	var secs = total_seconds % 60
 	return "%d分%02d秒%02d" % [mins, secs, centiseconds]
+
+func _stop_connection() -> void:
+	# 联机模式主动断开网络连接
+	if GameMain.current_mode_id == "online":
+		if NetworkManager.has_method("stop_network"):
+			print("[ESC Menu] 停止网络连接")
+			NetworkManager.stop_network()
+		else:
+			print("[ESC Menu] 未找到 NetworkManager 或缺少 stop_network 方法")

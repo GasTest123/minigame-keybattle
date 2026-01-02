@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dkl5ukxxqe48v"]
+[gd_scene load_steps=11 format=3 uid="uid://dkl5ukxxqe48v"]
 
 [ext_resource type="Script" uid="uid://4ts3pjkf357j" path="res://Scripts/UI/level_select.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://c8dkfudbqrq4n" path="res://assets/UI/common/bg_maintitle_neo.png" id="2_f431m"]
@@ -8,7 +8,6 @@
 [ext_resource type="Texture2D" uid="uid://rkoedninn4cu" path="res://assets/UI/common/btn-level-pressed-01.png" id="5_20eho"]
 [ext_resource type="Texture2D" uid="uid://c6ru0ufa3c6xp" path="res://assets/UI/common/btn-level-hover-01.png" id="6_aqroq"]
 [ext_resource type="Texture2D" uid="uid://cdigl7d4s25p3" path="res://assets/UI/common/btn-level-disabled-01.png" id="7_h3adk"]
-[ext_resource type="Texture2D" uid="uid://da75cnh456084" path="res://assets/UI/level_select_ui/panel-level3-01.png" id="8_tt6bj"]
 [ext_resource type="Texture2D" uid="uid://b4xgibahk4h0u" path="res://assets/UI/class_choose/btn-back-gray-01.png" id="9_02328"]
 [ext_resource type="Texture2D" uid="uid://tpynlqo2yorf" path="res://assets/UI/class_choose/btn-back-white-01.png" id="10_bmtn0"]
 
@@ -346,7 +345,137 @@ text = "进  入"
 
 [node name="chaper3panel" type="TextureRect" parent="bg/MarginContainer/HBoxContainer"]
 layout_mode = 2
-texture = ExtResource("8_tt6bj")
+texture = ExtResource("2_l65nk")
+
+[node name="chaper3text" type="VBoxContainer" parent="bg/MarginContainer/HBoxContainer/chaper3panel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -150.0
+offset_top = 88.55
+offset_right = 150.0
+offset_bottom = 424.55
+grow_horizontal = 2
+
+[node name="chapter" type="RichTextLabel" parent="bg/MarginContainer/HBoxContainer/chaper3panel/chaper3text"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/default_color = Color(1, 0.6, 0.2, 1)
+theme_override_fonts/normal_font = ExtResource("3_f431m")
+theme_override_font_sizes/normal_font_size = 25
+theme_override_font_sizes/bold_italics_font_size = 32
+theme_override_font_sizes/italics_font_size = 32
+bbcode_enabled = true
+text = "[i]CHAPTER 3[/i]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+
+[node name="title" type="Label" parent="bg/MarginContainer/HBoxContainer/chaper3panel/chaper3text"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_f431m")
+theme_override_font_sizes/font_size = 60
+text = "年会模式"
+horizontal_alignment = 1
+
+[node name="englishtitle" type="RichTextLabel" parent="bg/MarginContainer/HBoxContainer/chaper3panel/chaper3text"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/default_color = Color(1, 0.6, 0.2, 1)
+theme_override_fonts/normal_font = ExtResource("3_f431m")
+theme_override_font_sizes/normal_font_size = 25
+theme_override_font_sizes/bold_italics_font_size = 32
+theme_override_font_sizes/italics_font_size = 26
+bbcode_enabled = true
+text = "[i]PARTY MODE[/i]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="bg/MarginContainer/HBoxContainer/chaper3panel/chaper3text"]
+layout_mode = 2
+theme_override_font_sizes/italics_font_size = 25
+bbcode_enabled = true
+text = "[i]联网对战模式[/i]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+
+[node name="RichTextLabel3" type="RichTextLabel" parent="bg/MarginContainer/HBoxContainer/chaper3panel/chaper3text"]
+layout_mode = 2
+theme_override_font_sizes/italics_font_size = 25
+bbcode_enabled = true
+text = "[i]与同事联网对战🎮[/i]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+
+[node name="RichTextLabel4" type="RichTextLabel" parent="bg/MarginContainer/HBoxContainer/chaper3panel/chaper3text"]
+layout_mode = 2
+theme_override_font_sizes/italics_font_size = 25
+bbcode_enabled = true
+text = "[i]启动参数 --server/--client[/i]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+
+[node name="RichTextLabel5" type="RichTextLabel" parent="bg/MarginContainer/HBoxContainer/chaper3panel/chaper3text"]
+layout_mode = 2
+theme_override_font_sizes/italics_font_size = 25
+bbcode_enabled = true
+text = "[i][/i]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+
+[node name="RichTextLabel" type="RichTextLabel" parent="bg/MarginContainer/HBoxContainer/chaper3panel/chaper3text"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_fonts/normal_font = ExtResource("3_f431m")
+theme_override_font_sizes/normal_font_size = 25
+theme_override_font_sizes/italics_font_size = 25
+bbcode_enabled = true
+text = "[i]难度：[color=#ff6600]🎉派对[/color][/i]"
+horizontal_alignment = 1
+
+[node name="chaper3beginBtn" type="TextureButton" parent="bg/MarginContainer/HBoxContainer/chaper3panel"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -175.5
+offset_top = -123.0
+offset_right = 406.5
+offset_bottom = 93.0
+grow_horizontal = 2
+grow_vertical = 0
+scale = Vector2(0.7, 0.7)
+texture_normal = ExtResource("4_1ep74")
+texture_pressed = ExtResource("5_20eho")
+texture_hover = ExtResource("6_aqroq")
+texture_disabled = ExtResource("7_h3adk")
+texture_focused = ExtResource("6_aqroq")
+
+[node name="beginLabel" type="Label" parent="bg/MarginContainer/HBoxContainer/chaper3panel/chaper3beginBtn"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -145.28572
+offset_top = -30.857147
+offset_right = 54.714294
+offset_bottom = 70.14285
+grow_horizontal = 2
+grow_vertical = 2
+rotation = -0.15358898
+theme_override_fonts/font = ExtResource("3_f431m")
+theme_override_font_sizes/font_size = 80
+text = "进  入"
 
 [node name="backButton" type="TextureButton" parent="bg"]
 layout_mode = 1
