@@ -7,7 +7,6 @@ extends CanvasLayer
 const KEY_NORMAL_TEX: Texture2D = preload("res://assets/items/nkey.png")
 const KEY_MASTER_TEX: Texture2D = preload("res://assets/items/mkey.png")
 const HP_FILL_STYLE: StyleBox = preload("res://scenes/UI/class_state_bar_fill.tres")
-const WARNING_UI_SCENE: PackedScene = preload("res://scenes/UI/warning_ui.tscn")
 const BOSS_HP_BAR_SCENE: PackedScene = preload("res://scenes/UI/components/BOSS_HPbar.tscn")
 
 # ===== 玩家条目尺寸（统一在这里调）=====
@@ -28,6 +27,11 @@ const HP_BG_SKEW_X: float = 0.4
 @onready var wave_label: Label = %WaveLabel
 @onready var skill_icon: Control = %SkillIcon
 @onready var dash_ui: Control = %Dash_ui
+@onready var gold_counter: ResourceCounter = $gold_counter
+@onready var master_key_counter: ResourceCounter = $master_key_counter
+@onready var damage_flash: DamageFlash = %DamageFlash
+@onready var warning_ui: Control = $WarningUi
+@onready var warning_animation: AnimationPlayer = $WarningUi/AnimationPlayer
 @onready var boss_bar_container: VBoxContainer = null  # 动态创建/复用：BOSSbar_root/VBoxContainer
 
 # 玩家信息项场景（动态创建）
@@ -44,10 +48,6 @@ var _role_hint_panel: PanelContainer = null
 
 # Impostor 叛变提示框（屏幕下方）
 var _betrayal_hint_panel: PanelContainer = null
-
-# 波次开始大提示（复用单机版 WarningUi）
-var _warning_ui: Control = null
-var _warning_animation: AnimationPlayer = null
 
 # 更新间隔
 var _update_timer: float = 0.0
@@ -87,6 +87,9 @@ func _is_ui_current_player(peer_id: int) -> bool:
 	return peer_id == _get_ui_current_peer_id()
 
 func _ready() -> void:
+	# 设置 HUD
+	_setup_hud()
+
 	# 创建调试标签
 	_create_debug_label()
 	
@@ -95,9 +98,6 @@ func _ready() -> void:
 	
 	# 创建叛变提示框
 	_create_betrayal_hint_panel()
-
-	# 创建/挂载波次开始提示 UI（与单机版一致的 wave_begin 动画）
-	_setup_warning_ui()
 
 	# 创建/复用 BOSS 血条容器（联网版场景默认没有放节点）
 	_setup_boss_bar_ui()
@@ -125,37 +125,11 @@ func _ready() -> void:
 	_initialized = true
 
 
-## 创建/挂载波次开始提示 UI（复用 scenes/UI/warning_ui.tscn）
-func _setup_warning_ui() -> void:
-	# 如果场景里已存在同名节点（未来可能直接放进 tscn），优先复用
-	var existing := get_node_or_null("WarningUi") as Control
-	if existing:
-		_warning_ui = existing
-	else:
-		if not WARNING_UI_SCENE:
-			return
-		_warning_ui = WARNING_UI_SCENE.instantiate() as Control
-		if not _warning_ui:
-			return
-		_warning_ui.name = "WarningUi"
-		add_child(_warning_ui)
-	
-	# 确保不抢鼠标/不被暂停影响
-	_warning_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_warning_ui.process_mode = Node.PROCESS_MODE_ALWAYS
-	_warning_ui.z_index = 200
-	_warning_ui.z_as_relative = false
-	
-	_warning_animation = _warning_ui.get_node_or_null("AnimationPlayer") as AnimationPlayer
-	if _warning_animation:
-		_warning_animation.process_mode = Node.PROCESS_MODE_ALWAYS
-
-
 ## 播放波次开始警告动画（与单机版 game_ui.gd 保持一致）
 func _play_wave_begin_animation() -> void:
-	if _warning_animation and is_instance_valid(_warning_animation):
-		_warning_animation.stop()
-		_warning_animation.play("wave_begin")
+	if warning_animation and is_instance_valid(warning_animation):
+		warning_animation.stop()
+		warning_animation.play("wave_begin")
 
 
 ## 同步左上角面板尺寸：宽度跟随条目宽度，高度跟随当前玩家数量（避免裁切导致“看起来没变化”）
@@ -193,6 +167,22 @@ func _process(delta: float) -> void:
 	if _boss_scan_timer >= BOSS_SCAN_INTERVAL:
 		_boss_scan_timer = 0.0
 		_scan_and_update_boss_bars()
+
+
+## 设置 HUD
+func _setup_hud() -> void:
+	if not NetworkManager.is_server():
+		# 商店开启时会 tree.paused = true（WaveSystemOnline），
+		# 为了让右上角钥匙/HP闪红等 HUD 在暂停期间也能刷新，UI 必须可在暂停时继续运行。
+		process_mode = Node.PROCESS_MODE_ALWAYS
+
+	# 服务器端：右上角钥匙 UI 不应压在商店之上（商店自身 z_index=100）
+	# 通过降低 z_index，使其和其它 HUD 一致：被商店遮挡。
+	if NetworkManager.is_server():
+		if gold_counter:
+			gold_counter.z_index = 95
+		if master_key_counter:
+			master_key_counter.z_index = 95
 
 
 ## 创建/复用 BOSS 血条容器（与单机版节点结构一致：BOSSbar_root/VBoxContainer）
@@ -677,8 +667,10 @@ func _update_player_info(peer_id: int) -> void:
 	# 尺寸：本地玩家和模式1一致；其他玩家不缩放，仅 HPBar 变短
 	var local_peer_id: int = int(NetworkManager.get_peer_id())
 	var current_peer_id: int = _get_ui_current_peer_id()
-	item.set_meta("is_current", peer_id == current_peer_id)
+	var is_local: bool = peer_id == local_peer_id
 	var is_current: bool = peer_id == current_peer_id
+	item.set_meta("is_current", is_current)
+	
 	# 统一条目尺寸（不整体缩放）
 	item.scale = Vector2.ONE
 	# 兜底：按真实内容高度调整，避免进度条/文字被裁切
@@ -709,7 +701,7 @@ func _update_player_info(peer_id: int) -> void:
 		elif player_role == NetworkPlayerManager.ROLE_BOSS:
 			new_name = "👹 " + new_name + " [BOSS]"
 		else:
-			new_name = "🛡️ " + new_name
+			new_name = "🎮 " + new_name
 		
 		# 客户端：本地玩家标记“你”；服务器：跟随目标标记“当前”
 		if NetworkManager.is_server():
@@ -759,6 +751,16 @@ func _update_player_info(peer_id: int) -> void:
 		hp_text = hp_bar.get_node_or_null("HPText")
 	
 	if hp_bar and "now_hp" in player and "max_hp" in player:
+		# HP 下降即触发受伤全屏效果
+		# 在线版：
+		# - 客户端：仅本地玩家触发
+		# - 服务器：仅当前跟随目标（current_peer_id）触发
+		if is_local or is_current:
+			var old_hp := float(hp_bar.value)
+			var new_hp := float(max(0, int(player.now_hp)))
+			if new_hp < old_hp and damage_flash:
+				damage_flash.flash()
+
 		hp_bar.max_value = player.max_hp
 		hp_bar.value = max(0, player.now_hp)
 	
@@ -780,6 +782,17 @@ func _update_player_info(peer_id: int) -> void:
 	var master_key_label = item.get_node_or_null("MarginContainer/HBoxContainer/VBoxContainer/KeysContainer/MasterContainer/MasterKeyLabel")
 	if master_key_label and "master_key" in player:
 		master_key_label.text = "%d" % player.master_key
+
+	# 同步右上角钥匙显示：直接复用“玩家列表当前行”已拿到的数据
+	# 参考 HP flash 的客户端/服务器判定：
+	# - 客户端：仅本地玩家触发
+	# - 服务器：仅当前跟随目标（current_peer_id）触发
+	if gold_counter and master_key_counter:
+		if is_local or is_current:
+			var gold := int(player.gold) if "gold" in player else 0
+			var mk := int(player.master_key) if "master_key" in player else 0
+			gold_counter.set_value(gold, 0)
+			master_key_counter.set_value(mk, 0)
 
 
 ## 移除玩家信息项
@@ -1002,7 +1015,7 @@ func _update_role_hint() -> void:
 			_role_hint_panel.visible = true
 		
 		NetworkPlayerManager.ROLE_PLAYER:
-			role_label.text = "🛡️ 你是玩家"
+			role_label.text = "🎮 你是玩家"
 			role_label.add_theme_color_override("font_color", Color(0.4, 0.8, 1.0))
 			hint_label.text = "击败 BOSS，小心内鬼！"
 			if style:

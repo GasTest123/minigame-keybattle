@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dqxkm7y8f2h1o"]
+[gd_scene load_steps=18 format=3 uid="uid://dqxkm7y8f2h1o"]
 
 [ext_resource type="Script" uid="uid://c2tqxjk8nfh3p" path="res://Scripts/UI/game_ui_online.gd" id="1_online_ui"]
 [ext_resource type="FontFile" uid="uid://dc6bkofr1if2e" path="res://assets/fonts/CangErYuYangTiW05-2.ttf" id="2_wave_font"]
@@ -9,6 +9,12 @@
 [ext_resource type="Texture2D" uid="uid://83wa773ks6hh" path="res://assets/UI/game_ui/icon-lmb.png" id="7_lmb_icon"]
 [ext_resource type="Texture2D" uid="uid://2lva8wut6pmt" path="res://assets/UI/game_ui/lcom-rmb.png" id="8_rmb_icon"]
 [ext_resource type="Texture2D" uid="uid://bijoqd3cifawg" path="res://assets/UI/game_ui/icon-skill2-01.png" id="9_skill_icon"]
+[ext_resource type="Texture2D" uid="uid://ib6slp588m2v" path="res://assets/UI/game_ui/player-onhit-effect.png" id="10_hit_flash_tex"]
+[ext_resource type="Script" uid="uid://bhol8gfndxu2u" path="res://Scripts/UI/damage_flash.gd" id="11_damage_flash_script"]
+[ext_resource type="PackedScene" uid="uid://cjwclt4j7ayhl" path="res://scenes/UI/warning_ui.tscn" id="12_warning_ui_scene"]
+[ext_resource type="PackedScene" uid="uid://cqi5j0ht5t7pd" path="res://scenes/UI/components/resource_counter.tscn" id="13_resource_counter_scene"]
+[ext_resource type="Texture2D" uid="uid://dgolpndj8hh1n" path="res://assets/items/nkey.png" id="14_key_normal"]
+[ext_resource type="Texture2D" uid="uid://d0y4qqnoa48r2" path="res://assets/items/mkey.png" id="15_key_master"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(0.1, 0.1, 0.15, 0)
@@ -28,6 +34,38 @@ shadow_offset = Vector2(0, 0)
 [node name="GameUIOnline" type="CanvasLayer"]
 layer = 10
 script = ExtResource("1_online_ui")
+
+[node name="DamageFlash" type="TextureRect" parent="."]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("10_hit_flash_tex")
+script = ExtResource("11_damage_flash_script")
+
+[node name="master_key_counter" parent="." instance=ExtResource("13_resource_counter_scene")]
+z_index = 105
+z_as_relative = false
+offset_left = 1807.0
+offset_top = 45.0
+offset_right = 2007.0
+offset_bottom = 94.0
+icon_texture = ExtResource("15_key_master")
+
+[node name="gold_counter" parent="." instance=ExtResource("13_resource_counter_scene")]
+z_index = 105
+z_as_relative = false
+offset_left = 1571.0
+offset_top = 45.0
+offset_right = 1771.0
+offset_bottom = 94.0
+icon_texture = ExtResource("14_key_normal")
+
+[node name="WarningUi" parent="." instance=ExtResource("12_warning_ui_scene")]
+mouse_filter = 2
 
 [node name="PlayersPanel" type="PanelContainer" parent="."]
 offset_left = 50.0

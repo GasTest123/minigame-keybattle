@@ -80,6 +80,9 @@ func _show_server_countdown_only() -> void:
 	if player_portrait: player_portrait.visible = false
 	if player_name_label: player_name_label.visible = false
 	
+	var player_name_container := get_node_or_null("TitleSection/PlayerNameContainer") as Control
+	if player_name_container:
+		player_name_container.visible = false
 	var hp_bar := get_node_or_null("TitleSection/HPBar") as Control
 	if hp_bar:
 		hp_bar.visible = false
