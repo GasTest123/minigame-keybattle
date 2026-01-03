@@ -8,7 +8,25 @@ class_name PlayerCharacter
 @onready var trail: Trail = %Trail
 @onready var playerCamera: Camera2D = $Camera2D
 @onready var weapons_node: Node = get_node_or_null("now_weapons")
+
+## FX 节点引用
 @onready var skill_fx: AnimatedSprite2D = $"skill-FX"
+@onready var revive_fx: AnimatedSprite2D = $"revive-FX"
+
+## ===== 受伤闪白效果配置 =====
+const HURT_FLASH_COLOR: Color = Color(1.0, 1.0, 1.0, 1.0)  # 闪白颜色
+const HURT_FLASH_DURATION: float = 0.1  # 闪白持续时间（秒）
+
+## ===== 复活无敌效果配置 =====
+const REVIVE_INVINCIBLE_DURATION: float = 5.0  # 复活无敌持续时间（秒）
+const REVIVE_FLASH_COLOR: Color = Color(1.0, 0.85, 0.0, 1.0)  # 金黄色
+
+## 是否正在闪白
+var is_flashing: bool = false
+
+## 是否处于复活无敌状态
+var is_invincible: bool = false
+
 
 ## 基础属性
 var dir = Vector2.ZERO
@@ -287,6 +305,9 @@ func player_hurt(damage: int) -> void:
 	# 结算/冻结期间不再处理任何伤害
 	if NetworkPlayerManager and NetworkPlayerManager.has_method("is_match_frozen") and NetworkPlayerManager.is_match_frozen():
 		return
+	# 复活无敌期间：服务器侧直接免疫（不发送扣血 RPC）
+	if is_invincible:
+		return
 	
 	var final_damage = damage
 	
@@ -305,6 +326,9 @@ func player_hurt(damage: int) -> void:
 		final_damage = max(1, actual_damage)
 	
 	print("[PlayerOnline] 服务器处理伤害: peer_id=%d, damage=%d, 服务器端now_hp=%d" % [peer_id, final_damage, now_hp])
+	
+	# 服务器本地闪白（视觉效果）
+	player_flash()
 	
 	# 服务器通知客户端（authority）应用伤害，由客户端修改 now_hp，MultiplayerSynchronizer 会自动同步
 	rpc_id(peer_id, "rpc_apply_damage", final_damage)
@@ -339,6 +363,9 @@ func rpc_apply_damage(damage: int) -> void:
 	# 结算/冻结期间忽略迟到的伤害 RPC
 	if NetworkPlayerManager and NetworkPlayerManager.has_method("is_match_frozen") and NetworkPlayerManager.is_match_frozen():
 		return
+	# 客户端兜底：复活无敌期间忽略迟到/并发的伤害 RPC
+	if is_invincible:
+		return
 	
 	now_hp -= damage
 	if now_hp < 0:
@@ -346,6 +373,9 @@ func rpc_apply_damage(damage: int) -> void:
 	
 	print("[PlayerOnline] rpc_apply_damage 应用: 修改后now_hp=%d" % now_hp)
 	hp_changed.emit(now_hp, max_hp)
+	
+	# 播放受伤闪白效果
+	player_flash()
 	
 	# 显示伤害浮动文字（自己掉血显示"玩家"）
 	FloatingText.create_floating_text(
@@ -356,14 +386,14 @@ func rpc_apply_damage(damage: int) -> void:
 	)
 	
 	if now_hp <= 0:
+		# 死亡时强制结束无敌/复活特效，避免 shader 残留
+		force_end_invincibility()
 		canMove = false
 		stop = true
 		visible = false
 		# 死亡后必须彻底禁用输入/武器：否则在商店关闭（解除暂停）后仍可能继续攻击
 		set_process_input(false)
-		disable_weapons()
-		if class_manager:
-			class_manager.set_process(false)
+		enable_combat_systems(false)
 		# 死亡时清空速度，避免 PvP/Boss 等逻辑使用残留 velocity 造成误伤
 		velocity = Vector2.ZERO
 		
@@ -470,8 +500,34 @@ func rpc_show_damage_text(damage: int, hurt_peer_id: int) -> void:
 		Color(1.0, 0.0, 0.0, 1.0),
 		true
 	)
-	
+	# 其他客户端也做一次闪白（纯视觉，不改血量）
+	player_flash()
+
 	hp_changed.emit(now_hp, max_hp)
+
+
+## 受伤闪白效果
+func player_flash() -> void:
+	if not playerAni or not playerAni.material:
+		return
+	
+	# 如果已经在闪白，不重复触发
+	if is_flashing:
+		return
+	
+	is_flashing = true
+	
+	# 设置 shader 闪白参数
+	playerAni.material.set_shader_parameter("flash_color", HURT_FLASH_COLOR)
+	playerAni.material.set_shader_parameter("flash_opacity", 1.0)
+	
+	# 等待闪白持续时间
+	await get_tree().create_timer(HURT_FLASH_DURATION).timeout
+	
+	# 恢复原状
+	playerAni.material.set_shader_parameter("flash_opacity", 0.0)
+	
+	is_flashing = false
 
 
 func disable_weapons() -> void:
@@ -484,6 +540,20 @@ func enable_weapons() -> void:
 	if weapons_node:
 		weapons_node.process_mode = Node.PROCESS_MODE_INHERIT
 		weapons_node.visible = true
+
+
+## 统一控制职业系统（技能/CD等）的处理开关
+## 统一控制“战斗系统”（武器+职业技能）的开关
+## - enabled=true：可攻击/可技能/技能CD会走
+## - enabled=false：禁用攻击/技能/技能CD停止（用于死亡等）
+func enable_combat_systems(enabled: bool) -> void:
+	if enabled:
+		enable_weapons()
+	else:
+		disable_weapons()
+	
+	if class_manager:
+		class_manager.set_process(enabled)
 
 
 ## 添加初始武器
@@ -652,9 +722,10 @@ func activate_class_skill() -> void:
 	if not class_manager:
 		return
 	
-	# 本地执行（响应更快），再通知服务器广播给其他客户端
+	# 本地执行（响应更快）。
+	# 注意：不要在这里直接通知服务器，因为技能可能处于冷却中（activate_skill 会直接 return）。
+	# 服务器广播应当只在“技能真正激活”时发生（见 _on_skill_activated）。
 	class_manager.activate_skill()
-	_request_skill_activation.rpc_id(1)
 
 
 ## 请求服务器广播技能激活
@@ -669,11 +740,13 @@ func _request_skill_activation() -> void:
 	
 	print("[PlayerOnline] 服务器收到技能请求: peer_id=%d" % peer_id)
 	
-	# 服务器广播给所有客户端（包括自己显示特效）
+	# 服务器仅广播给所有客户端显示特效（服务器本地不播放，避免服务端窗口也出现玩家技能特效）
 	for client_peer_id in multiplayer.get_peers():
 		_rpc_play_skill_fx.rpc_id(client_peer_id)
-	# 服务器自己也显示特效
-	_play_skill_fx()
+
+	# 服务器本地也需要看到技能特效（作为观战/跟随视角）。
+	# 注意：CD 未到时不会再走到这里（客户端只在 skill_activated 后才发请求）。
+	_rpc_play_skill_fx()
 
 
 ## 接收服务器广播的技能特效
@@ -692,6 +765,10 @@ func _rpc_play_skill_fx() -> void:
 
 func _on_skill_activated(skill_name: String) -> void:
 	print("[PlayerOnline] 技能激活: %s" % skill_name)
+	
+	# 只有本地玩家（客户端）在技能真正激活时，才通知服务器广播特效给其他客户端
+	if is_local_player and not NetworkManager.is_server():
+		_request_skill_activation.rpc_id(1)
 	_play_skill_fx()
 
 
@@ -808,12 +885,7 @@ func configure_as_local() -> void:
 		if not playerCamera.is_in_group("camera"):
 			playerCamera.add_to_group("camera")
 	
-	if weapons_node:
-		weapons_node.process_mode = Node.PROCESS_MODE_INHERIT
-		weapons_node.visible = true
-	
-	if class_manager:
-		class_manager.set_process(true)
+	enable_combat_systems(true)
 	
 	_update_name_label()
 
@@ -918,11 +990,7 @@ func _apply_remote_death_state() -> void:
 	visible = false
 	canMove = false
 	stop = true
-	if weapons_node:
-		weapons_node.visible = false
-		weapons_node.process_mode = Node.PROCESS_MODE_DISABLED
-	if class_manager:
-		class_manager.set_process(false)
+	enable_combat_systems(false)
 
 
 func _apply_remote_alive_state() -> void:
@@ -932,9 +1000,7 @@ func _apply_remote_alive_state() -> void:
 	if visible:
 		return
 	visible = true
-	if weapons_node:
-		weapons_node.visible = true
-		weapons_node.process_mode = Node.PROCESS_MODE_INHERIT
+	enable_weapons()
 	if class_manager:
 		class_manager.set_process(false)
 	
@@ -1037,11 +1103,11 @@ func rpc_revive(full_hp: int) -> void:
 	# 恢复动画播放
 	_resume_animation()
 	
-	# 启用武器
-	enable_weapons()
+	# 复活后恢复战斗系统（武器 + 技能CD）
+	enable_combat_systems(true)
 	
-	# 显示复活特效
-	_show_revive_effect()
+	# 复活无敌（含特效）
+	start_revive_invincibility()
 
 
 ## 其他客户端：显示复活特效
@@ -1051,6 +1117,9 @@ func rpc_show_revive_effect(revived_peer_id: int) -> void:
 	var revived_player = NetworkPlayerManager.get_player_by_peer_id(revived_peer_id)
 	if revived_player and is_instance_valid(revived_player):
 		revived_player._apply_remote_alive_state()
+		# 其他客户端：播放同款复活特效（与模式1对齐）
+		if revived_player.has_method("start_revive_invincibility"):
+			revived_player.start_revive_invincibility()
 		print("[PlayerOnline] 其他玩家复活: peer_id=%d" % revived_peer_id)
 
 
@@ -1073,17 +1142,62 @@ func on_revive_result(success: bool, message: String) -> void:
 
 ## 显示复活特效
 func _show_revive_effect() -> void:
-	# 显示复活文字
-	FloatingText.create_floating_text(
-		global_position + Vector2(0, -50),
-		"复活!",
-		Color(0.3, 1.0, 0.3),
-		true
-	)
+	# 兼容旧调用点：统一走与模式1一致的复活无敌/特效
+	start_revive_invincibility()
+
+
+## ===== 复活无敌功能 =====
+
+## 开始复活无敌效果
+func start_revive_invincibility() -> void:
+	if is_invincible:
+		return
 	
-	# 闪烁效果
-	var tween = create_tween()
-	tween.tween_property(playerAni, "modulate:a", 0.3, 0.1)
-	tween.tween_property(playerAni, "modulate:a", 1.0, 0.1)
-	tween.tween_property(playerAni, "modulate:a", 0.3, 0.1)
-	tween.tween_property(playerAni, "modulate:a", 1.0, 0.1)
+	is_invincible = true
+	print("[PlayerOnline] 开始复活无敌，持续 %.1f 秒" % REVIVE_INVINCIBLE_DURATION)
+	
+	# 播放 revive-FX 的 revive 动画
+	if revive_fx:
+		revive_fx.visible = true
+		revive_fx.play("revive")
+	
+	# 设置金黄色 shader 效果
+	if playerAni and playerAni.material:
+		playerAni.material.set_shader_parameter("flash_color", REVIVE_FLASH_COLOR)
+		playerAni.material.set_shader_parameter("flash_opacity", 0.5)  # 半透明金黄色
+	
+	# 5秒后结束无敌
+	await get_tree().create_timer(REVIVE_INVINCIBLE_DURATION).timeout
+	
+	# 安全检查：节点是否有效，是否仍在无敌状态
+	if is_instance_valid(self) and is_invincible:
+		_end_revive_invincibility()
+
+
+## 结束复活无敌效果
+func _end_revive_invincibility() -> void:
+	if not is_invincible:
+		return
+	
+	is_invincible = false
+	print("[PlayerOnline] 复活无敌结束")
+	
+	# 停止 revive-FX 动画并隐藏
+	if revive_fx:
+		revive_fx.stop()
+		revive_fx.visible = false
+	
+	# 恢复 shader 效果
+	if playerAni and playerAni.material:
+		playerAni.material.set_shader_parameter("flash_opacity", 0.0)
+
+
+## 强制结束无敌（死亡时调用）
+func force_end_invincibility() -> void:
+	if is_invincible:
+		is_invincible = false
+		if revive_fx:
+			revive_fx.stop()
+			revive_fx.visible = false
+		if playerAni and playerAni.material:
+			playerAni.material.set_shader_parameter("flash_opacity", 0.0)

@@ -1,12 +1,24 @@
-[gd_scene load_steps=17 format=3 uid="uid://cyt7rw3e5mhxy"]
+[gd_scene load_steps=19 format=3 uid="uid://cyt7rw3e5mhxy"]
 
 [ext_resource type="Script" uid="uid://la8ovw1c7vcc" path="res://Scripts/players/player_online.gd" id="1_online"]
 [ext_resource type="Texture2D" uid="uid://cfe43qhbq2h15" path="res://assets/others/shadow.png" id="2_edvpf"]
 [ext_resource type="PackedScene" uid="uid://do0rhoe37j1sv" path="res://scenes/players/player_speech_bubble.tscn" id="2_sguum"]
 [ext_resource type="Script" uid="uid://fqudu87a8guo" path="res://Scripts/players/trail.gd" id="3_edvpf"]
 [ext_resource type="PackedScene" uid="uid://cgu6bmn3yknnu" path="res://scenes/weapons/now_weapons.tscn" id="3_kc87p"]
+[ext_resource type="Shader" uid="uid://b0mpedodgante" path="res://Shaders/weapon2.gdshader" id="4_flash_shader"]
 [ext_resource type="Texture2D" uid="uid://bbb22hdwja8mq" path="res://FX/light_test.png" id="5_olb2f"]
 [ext_resource type="SpriteFrames" uid="uid://24l7dlf0kn0e" path="res://resources/player/player_FX.tres" id="6_skill_fx"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_flash_online"]
+resource_local_to_scene = true
+shader = ExtResource("4_flash_shader")
+shader_parameter/color = Color(0, 0, 0, 1)
+shader_parameter/width = 3.0000001425
+shader_parameter/pattern = 2
+shader_parameter/inside = false
+shader_parameter/add_margins = false
+shader_parameter/flash_color = Color(1, 1, 1, 1)
+shader_parameter/flash_opacity = 0.0
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_kc87p"]
 load_path = "res://.godot/imported/player1-sheet.png-57d31d2b924831737743db6eecd0d6e7.ctex"
@@ -118,6 +130,7 @@ texture = ExtResource("2_edvpf")
 unique_name_in_owner = true
 z_index = 5
 position = Vector2(-10, -24.999989)
+material = SubResource("ShaderMaterial_flash_online")
 sprite_frames = SubResource("SpriteFrames_5iv5l")
 autoplay = "default"
 frame_progress = 0.5189973
@@ -129,6 +142,14 @@ scale = Vector2(3.1875, 3)
 sprite_frames = ExtResource("6_skill_fx")
 animation = &"skill"
 offset = Vector2(0, 23.95)
+
+[node name="revive-FX" type="AnimatedSprite2D" parent="."]
+visible = false
+z_index = 6
+scale = Vector2(1.3523809, 1.3999999)
+sprite_frames = ExtResource("6_skill_fx")
+animation = &"revive"
+autoplay = "revive"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-11.666668, -15.33334)

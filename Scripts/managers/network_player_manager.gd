@@ -768,6 +768,11 @@ func _server_revive_player(peer_id: int) -> void:
 		if player.has_method("enable_weapons"):
 			player.enable_weapons()
 	
+	# 服务器本地也需要看到复活特效/无敌（作为观战/跟随视角）。
+	# 注意：rpc_show_revive_effect 使用 call_remote，默认不会在调用方（服务器）本地执行。
+	if player.has_method("start_revive_invincibility"):
+		player.start_revive_invincibility()
+	
 	# 通知客户端执行复活（客户端会修改 now_hp，然后 MultiplayerSynchronizer 同步）
 	player.rpc_id(peer_id, "rpc_revive", full_hp)
 	
@@ -1987,7 +1992,9 @@ func _server_apply_heal(peer_id: int, heal_amount: float) -> void:
 	# 通知客户端恢复血量
 	var player = get_player_by_peer_id(peer_id)
 	if player and player.has_method("rpc_heal"):
-		rpc_id(peer_id, "rpc_heal", amount)
+		# 必须从 player 节点发起 RPC，确保命中客户端对应的 player 节点上的 rpc_heal
+		# 如果从 NetworkPlayerManager 发起，会尝试调用客户端的 NetworkPlayerManager.rpc_heal（通常不存在），导致治疗无效
+		player.rpc_id(peer_id, "rpc_heal", amount)
 		print("[NetworkPlayerManager] 治疗: peer_id=%d, amount=%d" % [peer_id, amount])
 
 
