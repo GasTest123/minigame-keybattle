@@ -109,6 +109,94 @@ func _on_connected_to_server() -> void:
 	connected_to_server.emit()
 
 
+## ==================== Local IP helpers ====================
+## 获取当前机器局域网 IPv4 地址
+func get_local_ipv4() -> String:
+	var addrs: PackedStringArray = IP.get_local_addresses()
+	var ipv4_192: PackedStringArray = PackedStringArray()
+	var ipv4_10: PackedStringArray = PackedStringArray()
+
+	for a in addrs:
+		var s := String(a).strip_edges()
+		if s.is_empty():
+			continue
+		if s.find(":") != -1:
+			continue
+		if s.count(".") != 3:
+			continue
+		if s == "0.0.0.0":
+			continue
+		if s == "127.0.0.1" or s.begins_with("127."):
+			continue
+		if s.begins_with("192.168."):
+			ipv4_192.append(s)
+			continue
+		if s.begins_with("10."):
+			ipv4_10.append(s)
+			continue
+
+	if ipv4_192.size() > 0:
+		return ipv4_192[0]
+	if ipv4_10.size() > 0:
+		return ipv4_10[0]
+	return "127.0.0.1"
+
+
+## ==================== LAN discovery helpers ====================
+## Client 端：不要求服务器配合，直接利用 ENet 的握手判断“该 IP:port 是否有本游戏的 ENet server 在监听”
+## 扫描本机所在 /24 网段（例如 192.168.1.*），并返回可连接的服务器列表：
+## [{ "ip": "192.168.1.10", "port": 19010 }, ...]
+func probe_enet_server(ip: String, port: int = DEFAULT_PORT, timeout_ms: int = 50) -> bool:
+	var peer := ENetMultiplayerPeer.new()
+	var err := peer.create_client(ip, port)
+	if err != OK:
+		return false
+
+	var start := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - start < timeout_ms:
+		peer.poll()
+		var status := peer.get_connection_status()
+		if status == MultiplayerPeer.CONNECTION_CONNECTED:
+			peer.close()
+			return true
+		if status == MultiplayerPeer.CONNECTION_DISCONNECTED:
+			break
+		await get_tree().process_frame
+
+	peer.close()
+	return false
+
+func discover_lan_servers(port_from: int = 1, port_to: int = 255,timeout_per_host_ms: int = 50, max_results: int = 1, port: int = DEFAULT_PORT) -> Array:
+	var results: Array = []
+	var local_ip := get_local_ipv4()
+	if local_ip == "127.0.0.1":
+		return results
+
+	var parts := local_ip.split(".")
+	if parts.size() < 4:
+		return results
+	var base := "%s.%s.%s." % [parts[0], parts[1], parts[2]]
+
+	# 扫描自己
+	if await probe_enet_server(local_ip, port, timeout_per_host_ms):
+		results.append({"ip": local_ip, "port": port})
+		if results.size() >= max_results:
+			return results
+
+	# 扫描 1..254（跳过自己），每个 host 给一个很短的握手窗口
+	for i in range(port_from, port_to):
+		var ip := "%s%d" % [base, i]
+		if ip == local_ip:
+			continue
+
+		if await probe_enet_server(ip, port, timeout_per_host_ms):
+			results.append({"ip": ip, "port": port})
+			if results.size() >= max_results:
+				return results
+
+	return results
+
+
 ## ==================== Cursor debug log (agent) ====================
 ## 仅用于 Cursor Debug Mode：写入 user://logs/cursor_debug.log
 const _CURSOR_DEBUG_LOG_PATH := "user://logs/cursor_debug.log"
@@ -147,4 +235,3 @@ func cursor_debug_log(hypothesis_id: String, location: String, message: String, 
 	)
 	req.request(_CURSOR_DEBUG_INGEST_ENDPOINT, ["Content-Type: application/json"], HTTPClient.METHOD_POST, JSON.stringify(payload))
 	#endregion
-

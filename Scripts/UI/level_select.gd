@@ -19,10 +19,16 @@ const ONLINE_MODE_ID := "online"
 const ONLINE_MAP_ID := "online_stage_1"
 const ONLINE_SCENE_PATH := "res://scenes/map/online_map.tscn"
 
-var _ip_address: String = "127.0.0.1"
+var _ip_address: String = ""
 var _port: int = NetworkManager.DEFAULT_PORT
 var _online_role: String = ""  # "s" = server, "c" = client, "" = disabled
 var _is_waiting_for_join: bool = false
+var _is_discovering_servers: bool = false
+var _discovered_servers: Array = []
+
+# 客户端自动发现服务器：进入页面后执行一个 loop，未找到则每 1 秒重试，找到则退出
+const _DISCOVERY_RETRY_SEC := 1.0
+var _is_discovery_loop_running: bool = false
 
 func _ready() -> void:
 	# 播放标题BGM
@@ -50,12 +56,17 @@ func _ready() -> void:
 
 	# 更新联网模式UI
 	_update_online_chapter3_ui()
+
+	# 客户端：搜索同网段可用服务器
+	if _online_role == "c" and _ip_address == "":
+		_start_discovery_loop()
 	
 	# 更新个人记录显示
 	_update_record_labels()
 
 
 func _exit_tree() -> void:
+	_is_discovery_loop_running = false
 	_disconnect_network_signals()
 
 
@@ -105,6 +116,10 @@ func _on_chapter3_begin_pressed() -> void:
 			NetworkManager.stop_network()
 			_update_online_chapter3_ui()
 		else:
+			# 还未发现服务器地址时，不允许点击连接
+			if _ip_address == "":
+				print("[LevelSelect] 客户端尚未发现服务器，连接按钮无效")
+				return
 			_start_as_client()
 			_update_online_chapter3_ui()
 	else:
@@ -162,7 +177,7 @@ func _check_online_mode_args() -> void:
 		if arg == "--server":
 			_online_role = "s"
 			_port = NetworkManager.DEFAULT_PORT
-			# 支持：--server :port 或 --server port
+			# 支持：--server [[:]port]
 			if i + 1 < args.size():
 				var port_token := String(args[i + 1]).strip_edges()
 				if port_token.begins_with(":"):
@@ -175,28 +190,37 @@ func _check_online_mode_args() -> void:
 			return
 		if arg == "--client" or arg == "-c":
 			_online_role = "c"
-			_ip_address = "127.0.0.1"
 			_port = NetworkManager.DEFAULT_PORT
+			# 支持：--client [ip[:port]] 或 --client [[:]port]
 			if i + 1 < args.size():
 				var addr_token := String(args[i + 1]).strip_edges()
-				# 支持：--client ip:port 或 --client ip
-				# 注：IPv6 未支持（包含多个 ':'），当前按最后一个 ':' 解析端口
-				var last_colon := addr_token.rfind(":")
-				var host_part := addr_token
+				var host_part := ""
 				var port_part := ""
-				if last_colon > 0:
-					host_part = addr_token.substr(0, last_colon)
-					port_part = addr_token.substr(last_colon + 1)
+				if addr_token != "":
+					# 格式 1：[:]port
+					if addr_token.begins_with(":"):
+						port_part = addr_token.substr(1)
+					# 格式 2：port
+					elif addr_token.is_valid_int():
+						port_part = addr_token
+					else:
+						# 格式 3：ip[:port]
+						var last_colon := addr_token.rfind(":")
+						if last_colon > 0:
+							host_part = addr_token.substr(0, last_colon)
+							port_part = addr_token.substr(last_colon + 1)
+						else:
+							host_part = addr_token
 				if port_part != "" and port_part.is_valid_int():
 					var parsed_port := int(port_part)
 					if parsed_port > 0 and parsed_port <= 65535:
 						_port = parsed_port
-				if IP.resolve_hostname_addresses(host_part, IP.TYPE_ANY).size() > 0:
+				# host_part 为空表示使用自动发现（_ip_address 保持为空）
+				if host_part != "" and IP.resolve_hostname_addresses(host_part, IP.TYPE_ANY).size() > 0:
 					_ip_address = host_part
 			print("[LevelSelect] 检测到客户端模式启动参数，目标: %s:%d" % [_ip_address, _port])
 			return
 	_online_role = ""
-	_ip_address = "127.0.0.1"
 	_port = NetworkManager.DEFAULT_PORT
 
 ## 作为服务器启动
@@ -210,6 +234,8 @@ func _start_as_server() -> void:
 
 ## 作为客户端加入
 func _start_as_client() -> void:
+	if _ip_address == "":
+		return
 	if NetworkManager.start_client(_ip_address, _port):
 		print("[LevelSelect] 正在连接 %s:%d ..." % [_ip_address, _port])
 		_is_waiting_for_join = true
@@ -255,16 +281,22 @@ func _on_network_stopped() -> void:
 	if _is_waiting_for_join:
 		print("[LevelSelect] 连接已关闭")
 	_is_waiting_for_join = false
+	if _online_role == "c":
+		_start_discovery_loop()
 	_update_online_chapter3_ui()
 
 func _on_network_connection_failed() -> void:
 	print("[LevelSelect] 连接失败，请重试")
 	_is_waiting_for_join = false
+	if _online_role == "c":
+		_start_discovery_loop()
 	_update_online_chapter3_ui()
 
 func _on_network_server_disconnected() -> void:
 	print("[LevelSelect] 与主机断开连接")
 	_is_waiting_for_join = false
+	if _online_role == "c":
+		_start_discovery_loop()
 	_update_online_chapter3_ui()
 
 func _on_network_connected_to_server() -> void:
@@ -272,9 +304,9 @@ func _on_network_connected_to_server() -> void:
 		return
 	print("[LevelSelect] 连接成功，正在进入战场...")
 	_is_waiting_for_join = false
+	_is_discovery_loop_running = false
 	_update_online_chapter3_ui()
 	await SceneCleanupManager.change_scene_safely_keep_mode(ONLINE_SCENE_PATH)
-
 
 func _update_online_chapter3_ui() -> void:
 	# 根据联网模式参数显示/隐藏年会模式按钮，并刷新 Chapter 3 文案
@@ -291,7 +323,8 @@ func _update_online_chapter3_ui() -> void:
 
 	if _online_role == "s":
 		if chapter3_info1_label:
-			chapter3_info1_label.text = "[i]当前为 [color=#ff6600]Server[/color] 端口：[color=#ff6600]%d[/color][/i]" % _port
+			var host_ip := NetworkManager.get_local_ipv4()
+			chapter3_info1_label.text = "[i]Server IP：[color=#ff6600]%s:%d[/color][/i]" % [host_ip, _port]
 		if chapter3_info2_label:
 			if "enable_role_impostor" in NetworkPlayerManager and NetworkPlayerManager.enable_role_impostor:
 				chapter3_info2_label.text = "[i]【 🎭 [color=#ff6600]开启内鬼[/color] 】[/i]"
@@ -303,7 +336,69 @@ func _update_online_chapter3_ui() -> void:
 
 	if _online_role == "c":
 		if chapter3_info1_label:
-			chapter3_info1_label.text = "[i]Server IP：[color=#ff6600]%s:%d[/color][/i]" % [_ip_address, _port]
+			if _ip_address != "":
+				chapter3_info1_label.text = "[i]Server IP：\n[color=#ff6600]%s:%d[/color][/i]" % [_ip_address, _port]
+			elif _is_discovering_servers:
+				chapter3_info1_label.text = "[i]Server IP：\n[color=#ff6600]正在搜索服务器...[/color][/i]"
+			else:
+				chapter3_info1_label.text = "[i]Server IP：\n[color=#ff6600]正在搜索服务器...[/color][/i]"
+		if chapter3_info2_label:
+			chapter3_info2_label.text = "[i][/i]"
 		if chapter3_btn_label:
 			chapter3_btn_label.text = "断  开" if (NetworkManager.is_client() or _is_waiting_for_join) else "连  接"
 		return
+
+
+## ==================== 客户端：发现服务器（循环） ====================
+
+func _start_discovery_loop() -> void:
+	if _online_role != "c":
+		return
+	if _is_discovery_loop_running:
+		return
+	_is_discovery_loop_running = true
+	call_deferred("_run_discovery_loop")
+
+func _run_discovery_loop() -> void:
+	if _online_role != "c":
+		return
+	# 异步循环：未找到则等待 1 秒继续找；找到或条件不满足则退出
+	while _is_discovery_loop_running:
+		if _is_waiting_for_join or NetworkManager.is_client():
+			break
+		if _discovered_servers.size() > 0:
+			break
+		await _discover_servers_for_client()
+		if _discovered_servers.size() > 0:
+			break
+		# 未找到：等 1 秒再试
+		await get_tree().create_timer(_DISCOVERY_RETRY_SEC).timeout
+
+	_is_discovery_loop_running = false
+
+## 客户端：搜索同网段可用服务器并（如需要）自动选用第一个
+func _discover_servers_for_client() -> void:
+	if _online_role != "c":
+		return
+	if _is_waiting_for_join or NetworkManager.is_client():
+		return
+	if _is_discovering_servers:
+		return
+
+	_is_discovering_servers = true
+	_update_online_chapter3_ui()
+
+	# 扫描本机所在 /24 网段（1..254）
+	var servers: Array = await NetworkManager.discover_lan_servers(1, 32, 50, 1, _port)
+	_discovered_servers = servers
+
+	# 若当前还是默认地址，则自动选用第一个发现到的服务器
+	if _ip_address == "" and _discovered_servers.size() > 0:
+		var s: Dictionary = _discovered_servers[0] as Dictionary
+		if not s.is_empty() and s.has("ip") and s.has("port"):
+			_ip_address = String(s.get("ip", "127.0.0.1"))
+			_port = int(s.get("port", _port))
+
+	_is_discovering_servers = false
+	_update_online_chapter3_ui()
+	return
