@@ -52,6 +52,12 @@ var _stop_spawning: bool = false
 # special_spawns 对应的全局索引
 var _special_spawn_global_indices: Dictionary = {}
 
+## ========== Debug 刷怪调试 ==========
+const DEBUG_FORCE_COMPLETE_WAVE_KEY := KEY_P
+const DEBUG_DECREASE_SPAWNED_KEY := KEY_T
+const DEBUG_DECREASE_SPAWNED_BY := 1
+var _debug_skip_all_phases_complete: bool = false
+
 
 func _is_network_server() -> bool:
 	return NetworkManager.is_server()
@@ -71,6 +77,10 @@ func _ready() -> void:
 	_load_spawn_indicator_delay()
 	
 	print("[EnemySpawner Online] 初始化完成 (MultiplayerSpawner 模式)，预警延迟: %s 秒" % str(spawn_indicator_delay))
+	
+	# 仅服务器端监听按键（host 模式有窗口时可用；dedicated headless 没有输入也无影响）
+	if _is_network_server():
+		set_process_unhandled_input(true)
 
 
 ## 刷新地面格子缓存
@@ -317,8 +327,7 @@ func _spawn_all_phases_async(wave_config: Dictionary) -> void:
 	print("[EnemySpawner Online] 所有Phase和Boss刷怪完成")
 	
 	# 通知波次系统
-	if wave_system and wave_system.has_method("on_all_phases_complete"):
-		wave_system.on_all_phases_complete()
+	_on_all_phases_complete()
 
 
 ## 刷新Boss
@@ -645,6 +654,13 @@ func _spawn_enemies_async(spawn_list: Array, wave_number: int) -> void:
 	is_spawning = false
 	print("[EnemySpawner Online] 生成完成")
 	
+	_on_all_phases_complete()
+
+
+func _on_all_phases_complete() -> void:
+	if _debug_skip_all_phases_complete:
+		_debug_skip_all_phases_complete = false
+		return
 	if wave_system and wave_system.has_method("on_all_phases_complete"):
 		wave_system.on_all_phases_complete()
 
@@ -878,3 +894,85 @@ func rpc_show_enemy_dead_effect(enemy_name: String) -> void:
 	var enemy = enemies_container.get_node_or_null(enemy_name)
 	if enemy and enemy is EnemyOnline and is_instance_valid(enemy):
 		enemy.show_death_effect()
+
+
+## ========== 刷怪调试 ==========
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not _is_network_server():
+		return
+	if not (event is InputEventKey):
+		return
+	var e := event as InputEventKey
+	if not e.pressed or e.echo:
+		return
+	if e.keycode == DEBUG_FORCE_COMPLETE_WAVE_KEY:
+		_server_debug_force_complete_wave()
+		return
+	if e.keycode == DEBUG_DECREASE_SPAWNED_KEY:
+		_server_debug_decrease_spawned(DEBUG_DECREASE_SPAWNED_BY)
+		return
+
+
+func _server_debug_force_complete_wave() -> void:
+	if not _is_network_server():
+		return
+	if not wave_system:
+		return
+
+	# 取消 _debug_skip_all_phases_complete，避免影响后续正常流程
+	_debug_skip_all_phases_complete = false
+
+	# 停止刷怪，避免完成后又继续刷
+	_stop_spawning = true
+	is_spawning = false
+
+	# 可选：清场，避免商店/下一波前场上残留怪
+	if enemies_container and has_method("clear_all_enemies"):
+		clear_all_enemies()
+
+	# 让 WaveSystem 满足完成检测的前置状态
+	if "all_phases_complete" in wave_system:
+		wave_system.set("all_phases_complete", true)
+	if "current_state" in wave_system:
+		wave_system.set("current_state", WaveSystemOnline.WaveState.FIGHTING)
+
+	# 强制推进到下一状态（WAVE_COMPLETE -> 商店 -> 下一波）
+	if wave_system.has_method("_check_wave_complete"):
+		wave_system.call("_check_wave_complete")
+
+
+func _server_debug_decrease_spawned(amount: int) -> void:
+	if not _is_network_server():
+		return
+	if not wave_system:
+		return
+	if _debug_skip_all_phases_complete:
+		return
+	if amount <= 0:
+		amount = 1
+
+	# 关键：模拟“刷怪已停止但并未触发 all_phases_complete”，从而让 WaveSystem 不会结算进入下一波
+	_debug_skip_all_phases_complete = true
+
+	if "all_phases_complete" in wave_system:
+		wave_system.set("all_phases_complete", false)
+	# 强制回到 SPAWNING（WaveSystem 的完成判定要求 all_phases_complete=true 且 state=FIGHTING）
+	if "current_state" in wave_system:
+		wave_system.set("current_state", WaveSystemOnline.WaveState.SPAWNING)
+
+	# 同时下调 spawned + killed，用于制造 “spawned/killed < total” 的卡关状态
+	var before_spawned: int = int(wave_system.get("spawned_enemies_this_wave"))
+	var after_spawned: int = maxi(before_spawned - amount, 0)
+	wave_system.set("spawned_enemies_this_wave", after_spawned)
+
+	var before_killed: int = int(wave_system.get("killed_enemies_this_wave"))
+	var after_killed: int = maxi(before_killed - amount, 0)
+	after_killed = mini(after_killed, after_spawned)
+	wave_system.set("killed_enemies_this_wave", after_killed)
+
+	# 同步一下状态给客户端/UI（如果 WaveSystem 有广播函数）
+	if wave_system.has_signal("enemy_killed"):
+		wave_system.enemy_killed.emit(int(wave_system.get("current_wave")), after_killed, int(wave_system.get("total_enemies_this_wave")))
+	if wave_system.has_method("_broadcast_wave_status"):
+		wave_system.call("_broadcast_wave_status")
